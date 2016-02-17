@@ -34,12 +34,12 @@ class Main {
 				rValue[i] = Integer.parseInt(inputData.nextToken());
 			}
 
-			int[][] dp = new int[numLCit][numRCit];
+			long[][] dp = new long[numLCit][numRCit];
 			int[][] numBridges = new int[numLCit][numRCit];
 
 			for (int l = 0; l < numLCit; l++) {
 				for (int r = 0; r < numRCit; r++) {
-					int best = 0;
+					long best = 0;
 					int bridgeNum = 0;
 					if (lCitP[l].equals(rCitP[r])) {
 						best = lValue[l] + rValue[r];
@@ -54,11 +54,17 @@ class Main {
 							best = dp[l - 1][r];
 							bridgeNum = numBridges[l - 1][r];
 						}
+						else if(best == dp[l - 1][r]){
+							bridgeNum = Math.min(bridgeNum, numBridges[l - 1][r]);
+						}
 					}
 					if (r != 0) {
 						if (best < dp[l][r - 1]) {
 							best = dp[l][r - 1];
 							bridgeNum = numBridges[l][r - 1];
+						}
+						else if(best == dp[l][r - 1]){
+							bridgeNum = Math.min(bridgeNum, numBridges[l][r-1]);	
 						}
 					}
 					dp[l][r] = best;
