@@ -1,4 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -6,72 +9,90 @@ class Main {
 
 	public static void main(String[] args) throws IOException {
 		Scanner reader = new Scanner(System.in);
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
 		ArrayList<Long> out = new ArrayList<Long>();
-		
-		while(reader.hasNext()){
+
+		while (reader.hasNext()) {
 			int size = reader.nextInt();
-			int[][] value = new int[size][size];
-			int aSize = reader.nextInt();
-			long totalSum = 0;
-			
-			for(int i = 0; i < size; i++){
-				for(int j = 0; j < size; j++){
+			byte[][] value = new byte[size][size];
+			int nSize = reader.nextInt();
+			int modifier = nSize - 1;
+			int boundary = size - nSize + 1;
+
+			for (int i = 0; i < size; i++) {
+				for (int j = 0; j < size; j++) {
 					value[i][j] = reader.nextByte();
 				}
 			}
-			
-			int boundary =  size - aSize + 1;
 
-			long[][] cost = new long[size][boundary];
-			
-			for(int cC = 0; cC < size; cC++){
-				long[] cCost = cost[cC];
-				long sum = 0;
-				for(int i = 0; i < aSize; i++){
-					sum += value[i][cC];
+			int[][] hCost = new int[size][boundary];
+
+			for (int cRow = 0; cRow < size; cRow++) {
+				byte[] rowValue = value[cRow];
+				int[] rowHCost = hCost[cRow];
+				int cSum = 0;
+				for (int i = 0; i < nSize; i++) {
+					cSum += rowValue[i];
 				}
-				
-				cCost[0] = sum;
-				
-				for(int cR = 1; cR < boundary; cR++){
-					sum -= value[cR-1][cC];
-					sum += value[cR+aSize-1][cC];
-					cCost[cR] = sum;
+				rowHCost[0] = cSum;
+				for (int cColumn = 1; cColumn < boundary; cColumn++) {
+					cSum -= rowValue[cColumn - 1];
+					cSum += rowValue[cColumn + modifier];
+					rowHCost[cColumn] = cSum;
+				}
+			}
+
+			long[][] squareCost = new long[boundary][boundary];
+
+			long cSum = 0;
+
+			for (int i = 0; i < nSize; i++) {
+				cSum += hCost[i][0];
+			}
+			squareCost[0][0] = cSum;
+
+			for (int cColumn = 1; cColumn < boundary; cColumn++) {
+				cSum = 0;
+				for(int cRow = 0; cRow < nSize; cRow++){
+					cSum += hCost[cRow][cColumn];
+				}
+				squareCost[0][cColumn] = cSum;
+			}
+			
+			for(int cColumn = 0; cColumn < boundary; cColumn++){
+				cSum = squareCost[0][cColumn];
+				for(int cRow = 1; cRow < boundary; cRow++){
+					cSum -= hCost[cRow - 1][cColumn];
+					cSum += hCost[cRow + modifier][cColumn];
+					squareCost[cRow][cColumn] = cSum;
 				}
 			}
 			
-			for(int cR = 0; cR < boundary; cR++){
-				long sum = 0;
-				for(int i = 0; i < aSize; i++){
-					sum += cost[i][cR];
-				}
-				
-				totalSum += sum;
-				out.add(sum);
-								
-				for(int cC = 1; cC < boundary; cC++){
-					sum -= cost[cC-1][cR];
-					sum += cost[cC+aSize-1][cR];
-					out.add(sum);
-					totalSum += sum;
+			long totalSum = 0;
+			for(int cRow = 0; cRow < boundary; cRow++){
+				long[] rowCost = squareCost[cRow];
+				for(int cColumn = 0; cColumn < boundary; cColumn++){
+					long item = rowCost[cColumn];
+					out.add(item);
+					totalSum += item;
 				}
 			}
 			out.add(totalSum);
 			out.add(Long.MIN_VALUE);
 		}
-		
-		out.remove(out.size()-1);
-		
-		for(long l : out){
-			if(l == Long.MIN_VALUE){
-				System.out.println();
-			}
-			else{
-				System.out.println(l);
+
+		out.remove(out.size() - 1);
+
+		for (long l : out) {
+			if (l == Long.MIN_VALUE) {
+				printer.println();
+			} else {
+				printer.println(l);
 			}
 		}
+		printer.close();
 		reader.close();
-		
+
 	}
 
 }
