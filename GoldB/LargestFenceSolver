@@ -1,0 +1,224 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+
+public class LargestFenceSolver {
+
+	public static void main(String[] args) throws IOException {
+		new LargestFenceSolver().solve();
+	}
+
+	int N;
+	Point[] points;
+	int[][] polarOrderings;
+	int[][] polarIndexOf;
+	int[][] nextIndex;
+	int[][] dp;
+
+	public void solve() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(reader.readLine());
+		points = new Point[N];
+		polarOrderings = new int[N][2*N];
+		polarIndexOf = new int[N][N];
+		nextIndex = new int[N][2*N];
+		dp = new int[N][2*N];
+		
+		for (int i = 0; i < N; i++) {
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			points[i] = new Point(Integer.parseInt(inputData.nextToken()), Integer.parseInt(inputData.nextToken()));
+		}
+		Arrays.sort(points);
+
+		for (int current = 0; current < N; current++) {
+			Integer[] polarOrdered = new Integer[N - 1];
+			for (int i = 0; i < current; i++) {
+				polarOrdered[i] = i;
+			}
+			for (int i = current + 1; i < N; i++) {
+				polarOrdered[i - 1] = i;
+			}
+			Arrays.sort(polarOrdered, new PointIndexByPolarOrder(points[current].PolarOrder()));
+
+			for (int other = 0; other < N - 1; other++) {
+				polarOrderings[current][other] = polarOrdered[other];
+				polarIndexOf[current][polarOrdered[other]] = other;
+			}
+			for (int other = N - 1; other < 2 * N - 2; other++) {
+				polarOrderings[current][other] = polarOrderings[current][other - N + 1];
+			}
+		}
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (i != j) {
+					nextIndex[i][j] = getNextIndex(i, j);
+				}
+			}
+		}
+
+		int best = 0;
+		for (int i = 0; i < N; i++) {
+			for (int a = 0; a < N; a++) {
+				for (int b = 0; b < 2 * N; b++) {
+					dp[a][b] = -1;
+				}
+			}
+			for (int j = 0; j < N; j++) {
+				if (i == j)
+					continue;
+
+				if (isHigher(i, j) && nextIndex[j][i] != -1) {
+					best = Math.max(best, getMax(i, j, nextIndex[j][i]));
+				}
+			}
+		}
+		System.out.println(best);
+	}
+
+	int getMax(int p1, int p2, int p3) {
+		if (p3 == p1) {
+			return 2;
+		}
+		if (dp[p2][p3] != -1) {
+			return dp[p2][p3];
+		}
+		dp[p2][p3] = Math.max(isHigher(p1, p3) ? 1 + getMax(p1, p3, nextIndex[p3][p2]) : 0,
+				polarIndexOf[p2][p3] < 2 * N - 3 ? getMax(p1, p2, polarOrderings[p2][polarIndexOf[p2][p3] + 1]) : 0);
+		return dp[p2][p3];
+	}
+
+	int getNextIndex(int p3, int p2) {
+		int ans = 0;
+		while (ans < N - 1 && isCCW(points[p2], points[p3], points[polarOrderings[p3][ans]])) {
+			ans++;
+		}
+		while (ans < 2 * N - 2 && !isCCW(points[p2], points[p3], points[polarOrderings[p3][ans]])) {
+			ans++;
+		}
+		if (ans == 2 * N - 2)
+			return -1;
+		else
+			return polarOrderings[p3][ans];
+	}
+
+	boolean isHigher(int i, int j) {
+		return points[i].y >= points[j].y;
+	}
+
+	class PointIndexByPolarOrder implements Comparator<Integer> {
+
+		Point.PolarOrder ordering;
+
+		PointIndexByPolarOrder(Point.PolarOrder ordering) {
+			this.ordering = ordering;
+		}
+
+		public int compare(Integer o1, Integer o2) {
+			return ordering.compare(points[o1], points[o2]);
+		}
+	}
+	
+	public static boolean isCCW(Point a, Point b, Point c) {
+		int IDK = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+		if (IDK < 0) {
+			return false;
+		} else if (IDK > 0) {
+			return true;
+		} else {
+			// straight -> false
+			return false;
+		}
+	}
+	
+	public class Point implements Comparable<Point> {
+
+		int x;
+		int y;
+		
+		public Point(){}
+		
+		public Point(int x, int y){
+			this. x = x;
+			this. y = y;
+		}
+
+		public int compareTo(Point o) {
+			if (this.y < o.y) {
+				return -1;
+			}
+			if (this.y > o.y) {
+				return 1;
+			}
+			if (this.x < o.x) {
+				return -1;
+			}
+			if (this.x > o.x) {
+				return 1;
+			}
+			return 0;
+		}
+
+		public boolean equals(Object o) {
+			if (this.getClass() != o.getClass()) {
+				return false;
+			}
+			Point other = (Point) o;
+			if (this.x == other.x && this.y == other.y) {
+				return true;
+			}
+			return false;
+		}
+
+		public double distance(Point other) {
+			return Math.sqrt(Math.abs(this.x - other.x) + Math.abs(this.y - other.y));
+		}
+
+		
+		
+		public PolarOrder PolarOrder(){
+			return new PolarOrder();
+		}
+
+		class PolarOrder implements Comparator<Point> {
+
+			public int compare(Point q1, Point q2) {
+				int dx1 = q1.x - x;
+				int dy1 = q1.y - y;
+				int dx2 = q2.x - x;
+				int dy2 = q2.y - y;
+
+				// q1 above; q2 below
+				if (dy1 >= 0 && dy2 < 0) {
+					return -1;
+				}
+
+				// q1 below; q2 above
+				else if (dy2 >= 0 && dy1 < 0) {
+					return +1;
+				}
+
+				// 3-collinear and horizontal
+				else if (dy1 == 0 && dy2 == 0) {
+					if (dx1 >= 0 && dx2 < 0) {
+						return -1;
+					} else if (dx2 >= 0 && dx1 < 0) {
+						return +1;
+					} else {
+						return 0;
+					}
+				}
+
+				else {
+					return !isCCW(Point.this, q1, q2) ? 1 : -1;
+				}
+			}
+
+		}
+
+	}
+
+}
