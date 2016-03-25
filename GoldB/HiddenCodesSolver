@@ -1,0 +1,188 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+
+public class HiddenCodesSolver {
+
+	public static void main(String[] args) throws IOException {
+		new HiddenCodesSolver().solve();
+	}
+
+	int N;
+	int[][] codeWords;
+	int[] text;
+	LinkedList<IncompleteWord>[] lists;
+
+	ArrayList<Range> ranges = new ArrayList<Range>();
+
+	LinkedList<Integer>[] starting;
+
+	@SuppressWarnings("unchecked")
+	void solve() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(reader.readLine());
+		codeWords = new int[N][];
+		starting = new LinkedList[52];
+		
+		for(int i = 0; i < 52; i++){
+			starting[i] = new LinkedList<Integer>();
+		}
+		
+		for (int i = 0; i < N; i++) {
+			char[] input = reader.readLine().toCharArray();
+
+			codeWords[i] = new int[input.length];
+			for (int j = 0; j < input.length; j++) {
+				codeWords[i][j] = toInt(input[j]);
+			}
+
+			starting[codeWords[i][0]].add(i);
+		}
+		char[] input = reader.readLine().toCharArray();
+		text = new int[input.length];
+		
+		for (int i = 0; i < input.length; i++) {
+			text[i] = toInt(input[i]);
+		}
+
+		lists = new LinkedList[52];
+		
+		for(int i = 0; i < 52; i++){
+			lists[i] = new LinkedList<IncompleteWord>();
+		}
+
+		for (int currentIndex = 0; currentIndex < text.length; currentIndex++) {
+			int value = text[currentIndex];
+
+			LinkedList<IncompleteWord> currentList = lists[value];
+			lists[value] = new LinkedList<IncompleteWord>();
+
+			while (!currentList.isEmpty()) {
+				IncompleteWord currentWord = currentList.removeFirst();
+				if (currentIndex - currentWord.startingPoint >= 1000) {
+					continue;
+				}
+
+				currentWord.currentProgress++;
+				if (currentWord.currentProgress == codeWords[currentWord.wordIndex].length) {
+					Range newRange = new Range(currentWord.startingPoint, currentIndex+1, currentWord.currentProgress);
+					ranges.add(newRange);
+					continue;
+				}
+				lists[codeWords[currentWord.wordIndex][currentWord.currentProgress]].add(currentWord);
+			}
+
+			LinkedList<Integer> startingList = starting[value];
+
+			for (int i : startingList) {
+				IncompleteWord newWord = new IncompleteWord();
+				newWord.startingPoint = currentIndex;
+				newWord.wordIndex = i;
+				newWord.currentProgress = 1;
+				lists[codeWords[i][1]].add(newWord);
+			}
+		}
+		
+		System.out.println(findBest());
+
+	}
+	
+	
+	int[] p;
+	int numIntervals;
+	Range[] intervals;
+	
+	int findBest() {
+		numIntervals = ranges.size();
+		intervals = new Range[numIntervals+1];
+		
+		intervals[0] = new Range(0, 0, 0);
+		for(int i = 1; i <= numIntervals; i++){
+			intervals[i] = ranges.get(i-1);
+		}
+		
+		p = new int[numIntervals+1];
+		computeP();
+		
+		int[] dp = new int[numIntervals+1];
+		for(int i = 1; i <= numIntervals; i++){
+			dp[i] = Math.max(intervals[i].weight + dp[p[i]], dp[i-1]);
+		}
+		
+		return dp[numIntervals];
+	}
+	
+	
+	void computeP(){
+		for(int i = 1; i <= numIntervals; i++){
+			p[i] = findGreatestPreInterval(i);
+		}
+	}
+	
+	int findGreatestPreInterval(int i){
+		return binarySearch(0, i-1, intervals[i].start);
+	}
+	
+	int binarySearch(int lo, int hi, int val){
+		int mid;
+		while(lo < hi){
+			mid = lo + (hi - lo + 1) / 2;
+			if(intervals[mid].end <= val){
+				lo = mid;
+			}
+			else{
+				hi = mid-1;
+			}
+		}
+		if(intervals[lo].end > val){
+			return 0;
+		}
+		return lo;
+	}
+
+	class ByEnd implements Comparator<Range> {
+		public int compare(Range o1, Range o2) {
+			return Integer.compare(o1.end, o2.end);
+		}
+	}
+	class ByStart implements Comparator<Range> {
+		public int compare(Range o1, Range o2) {
+			return Integer.compare(o1.start, o2.start);
+		}
+	}
+
+	int toInt(char character) {
+		if (Character.isUpperCase(character)) {
+			return character - 'A';
+		} else {
+			return character - 'a' + 26;
+		}
+	}
+
+	class Range {
+		int start;
+		int end;
+		int weight;
+
+		Range(int start, int end, int weight) {
+			this.start = start;
+			this.end = end;
+			this.weight = weight;
+		}
+
+		public int compareTo(Range other) {
+			return Integer.compare(end, other.end);
+		}
+
+	}
+
+	class IncompleteWord {
+		int startingPoint;
+		int wordIndex;
+		int currentProgress;
+	}
+
+}
