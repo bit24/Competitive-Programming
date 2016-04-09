@@ -1,0 +1,106 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+
+public class FairShuttleSolver {
+
+	public static void main(String[] args) throws IOException {
+		new FairShuttleSolver().solve();
+	}
+	
+	static int numStops;
+	static int shuttleCapacity;
+	static int numGroups;
+	
+	
+	void solve() throws IOException{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numGroups = Integer.parseInt(inputData.nextToken());
+		numStops = Integer.parseInt(inputData.nextToken());;
+		shuttleCapacity = Integer.parseInt(inputData.nextToken());
+		Group[] groups = new Group[numGroups];
+		
+		for(int i = 0; i < numGroups; i++){
+			inputData = new StringTokenizer(reader.readLine());
+			int start = Integer.parseInt(inputData.nextToken());
+			int end = Integer.parseInt(inputData.nextToken());
+			int amount = Integer.parseInt(inputData.nextToken());
+			groups[i] = new Group(start, end, amount);
+		}
+		
+		Arrays.sort(groups, new COMPAREBYSTART());
+		
+		TreeMap<Integer, Integer> off = new TreeMap<Integer, Integer>();
+		
+		int total = 0;
+		int ans = 0;
+		
+		for(int current = 0; current < numGroups; current++){
+			int cStart = groups[current].start;
+			
+			Map.Entry<Integer, Integer> iteratingEntry = off.firstEntry();
+			while(iteratingEntry != null && iteratingEntry.getKey() <= cStart){
+				ans += iteratingEntry.getValue();
+				total -= iteratingEntry.getValue();
+				off.remove(iteratingEntry.getKey());
+				iteratingEntry = off.firstEntry();
+			}
+			
+			if(off.containsKey(groups[current].end)){
+				off.put(groups[current].end, off.get(groups[current].end) + groups[current].number);
+			}
+			else{
+				off.put(groups[current].end, groups[current].number);
+			}
+			
+			total += groups[current].number;
+			Integer last = off.lastKey();
+			
+			while(!off.isEmpty() && total > shuttleCapacity){
+				if(total - off.get(last) >= shuttleCapacity){
+					total -= off.get(last);
+					off.remove(last);
+					last = off.lastKey();
+				}
+				else{
+					off.put(last, off.get(last) - (total - shuttleCapacity));
+					total = shuttleCapacity;
+				}
+			}
+			
+		}
+		ans += total;
+		System.out.println(ans);
+		
+	}
+	
+	class COMPAREBYSTART implements Comparator<Group>{
+
+		public int compare(Group o1, Group o2) {
+			return Integer.compare(o1.start, o2.start);
+		}
+		
+	}
+	
+	class Group{
+		int start = 0;
+		int end = 0;
+		int number;
+		
+		Group(){}
+		
+		Group(int a, int b, int c){
+			this.start = a;
+			this.end = b;
+			this.number = c;
+		}
+		
+	}
+	
+}
