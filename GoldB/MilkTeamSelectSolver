@@ -53,10 +53,10 @@ public class MilkTeamSelectSolver {
 
 	
 	public static void computeDP(int currentNode) {
-		dp[0][currentNode][0] = 0;
+	dp[0][currentNode][0] = 0;
         dp[1][currentNode][0] = production[currentNode];
 
-		int maxRelations = 0;
+	int maxRelations = 0;
 
         for (int childIndex = 0; childIndex < children[currentNode].size(); childIndex++ ) {
 			int childNum = children[currentNode].get(childIndex);
