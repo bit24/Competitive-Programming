@@ -1,0 +1,163 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class FenceLoops {
+	
+	static int numEdges;
+	
+	static int[][] cost;
+	
+	static int numNodes;
+	
+	static LinkedHashMap<EIArray, Integer> nodes = new LinkedHashMap<EIArray, Integer>();
+	
+	static FenceLoops solver = new FenceLoops();
+	
+	static ArrayList<LinkedList<Integer>> aList = new ArrayList<LinkedList<Integer>>();
+	
+	static int min = Integer.MAX_VALUE;
+	
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		numEdges = Integer.parseInt(reader.readLine());
+		
+		cost = new int[200][200];
+				
+		for(int i = 0; i < numEdges; i++){
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			
+			int edgeNum = Integer.parseInt(inputData.nextToken());
+			int length = Integer.parseInt(inputData.nextToken());
+			
+			int node1Edges = Integer.parseInt(inputData.nextToken()) + 1;
+			int node2Edges = Integer.parseInt(inputData.nextToken()) + 1;
+			
+			inputData = new StringTokenizer(reader.readLine());
+			int[] edges = new int[node1Edges];
+			for(int j = 0; j < node1Edges - 1; j++){
+				edges[j] = Integer.parseInt(inputData.nextToken());
+			}
+			edges[edges.length-1] = edgeNum;
+			Arrays.sort(edges);
+			
+			if(!nodes.containsKey(solver. new EIArray(edges))){
+				nodes.put(solver. new EIArray(edges), numNodes++);
+				aList.add(new LinkedList<Integer>());
+			}
+			int node1Num = nodes.get(solver. new EIArray(edges));
+			
+			inputData = new StringTokenizer(reader.readLine());
+			edges = new int[node2Edges];
+			for(int j = 0; j < node2Edges - 1; j++){
+				edges[j] = Integer.parseInt(inputData.nextToken());
+			}
+			edges[edges.length-1] = edgeNum;
+			Arrays.sort(edges);
+			
+			if(!nodes.containsKey(solver. new EIArray(edges))){
+				nodes.put(solver. new EIArray(edges), numNodes++);
+				aList.add(new LinkedList<Integer>());
+			}
+			int node2Num = nodes.get(solver. new EIArray(edges));
+			
+			aList.get(node1Num).add(node2Num);
+			aList.get(node2Num).add(node1Num);
+			
+			cost[node1Num][node2Num] = length;
+			cost[node2Num][node1Num] = length;
+		}
+		
+		for(int a = 0; a < numNodes; a++){
+			for(int i = 0; i < aList.get(a).size(); i++){
+				int b = aList.get(a).get(i);
+				int costPart1 = cost[a][b];
+				
+				//remove edge
+				aList.get(a).remove(new Integer(b));
+				aList.get(b).remove(new Integer(a));
+				
+				Vertex startVertex = solver. new Vertex();
+				startVertex.num = a;
+				
+				PriorityQueue<Vertex> queue = new PriorityQueue<Vertex>();
+				queue.add(startVertex);
+				int[] distance = new int[numNodes];
+				Arrays.fill(distance, Integer.MAX_VALUE);
+				
+				distance[a] = 0;
+				
+				int costPart2 = Integer.MAX_VALUE;
+				while(!queue.isEmpty()){
+					Vertex current = queue.remove();
+					if(current.num == b){
+						costPart2 = current.cost;
+						break;
+					}
+					
+					for(int neighborNum : aList.get(current.num)){
+						if(distance[neighborNum] > distance[current.num] + cost[current.num][neighborNum]){
+							distance[neighborNum] = distance[current.num] + cost[current.num][neighborNum];
+							queue.add(solver. new Vertex(neighborNum, distance[neighborNum]));
+						}
+					}
+				}
+				aList.get(a).add(b);
+				aList.get(b).add(a);
+				
+				int totalCost = costPart1 + costPart2;
+				if(costPart2 == Integer.MAX_VALUE){
+					totalCost = Integer.MAX_VALUE;
+				}
+				
+				min = Math.min(min, totalCost);
+			}
+		}
+		
+		System.out.println(min);
+		
+	}
+	
+	class Vertex implements Comparable<Vertex>{
+		int num;
+		int cost;
+		
+		public int compareTo(Vertex o) {
+			return Integer.compare(cost, o.cost);
+		}
+		
+		Vertex(){};
+		
+		Vertex(int a, int b){
+			num = a;
+			cost = b;
+		}
+		
+	}
+	
+	class EIArray{
+		int[] elements;
+		
+		public boolean equals(Object other){
+			EIArray o = (EIArray) other;
+			
+			return Arrays.equals(o.elements, elements);
+		}
+		
+		public int hashCode(){
+			return Arrays.hashCode(elements);
+		}
+		
+		public EIArray(int[] elements){
+			this.elements = elements;
+		}
+		
+	}
+
+}
