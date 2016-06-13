@@ -1,0 +1,118 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class TelephoneLinesSolver {
+
+	static TelephoneLinesSolver helper = new TelephoneLinesSolver();
+
+	static int numVertices;
+	static int numEdges;
+	static int numFreebies;
+
+	static ArrayList<ArrayList<Integer>> aList = new ArrayList<ArrayList<Integer>>();
+	static int[][] distance;
+
+	static int[][] maxLength;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numVertices = Integer.parseInt(inputData.nextToken());
+		numEdges = Integer.parseInt(inputData.nextToken());
+		numFreebies = Integer.parseInt(inputData.nextToken());
+
+		for (int i = 0; i < numVertices; i++) {
+			aList.add(new ArrayList<Integer>());
+		}
+		distance = new int[numVertices][numVertices];
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			int currentCost = Integer.parseInt(inputData.nextToken());
+			aList.get(a).add(b);
+			aList.get(b).add(a);
+			distance[a][b] = currentCost;
+			distance[b][a] = currentCost;
+		}
+		// init done
+
+		maxLength = new int[numVertices][numFreebies + 1];
+
+		for (int i = 0; i < numVertices; i++) {
+			for (int j = 0; j <= numFreebies; j++) {
+				maxLength[i][j] = Integer.MAX_VALUE / 4;
+			}
+		}
+
+		State startState = helper.new State(0, 0, numFreebies);
+		startState.freebies = numFreebies;
+		maxLength[0][numFreebies] = 0;
+
+		PriorityQueue<State> queue = new PriorityQueue<State>();
+		queue.add(startState);
+		while (!queue.isEmpty()) {
+			State currentState = queue.remove();
+			int currentVertex = currentState.vertex;
+			int currentMaxLength = currentState.maxLength;
+			int currentNumFreebies = currentState.freebies;
+			
+			if(maxLength[currentVertex][currentNumFreebies] < currentMaxLength){
+				continue;
+			}
+
+			if (currentVertex == numVertices - 1) {
+				break;
+			}
+
+			for (int neighbor : aList.get(currentVertex)) {
+				
+				//case 1:no freebie
+				int newMaxLength = Math.max(currentMaxLength, distance[currentVertex][neighbor]);
+				if(maxLength[neighbor][currentNumFreebies] > newMaxLength){
+					maxLength[neighbor][currentNumFreebies] = newMaxLength;
+					queue.add(helper . new State(neighbor, newMaxLength, currentNumFreebies));
+				}
+				
+				//case 2:freebie
+				if(currentNumFreebies > 0){
+					if(maxLength[neighbor][currentNumFreebies-1] > currentMaxLength){
+						maxLength[neighbor][currentNumFreebies-1] = currentMaxLength;
+						queue.add(helper . new State(neighbor, currentMaxLength, currentNumFreebies-1));
+					}
+				}
+			}
+		}
+		
+		//Integer.MAX_VALUE/4
+		if(maxLength[numVertices - 1][0] == 536870911){
+			System.out.println(-1);
+		}
+		else{
+			System.out.println(maxLength[numVertices - 1][0]);
+		}
+	}
+
+	class State implements Comparable<State> {
+		int vertex;
+		int maxLength;
+		int freebies;
+
+		State(int vertex, int maxLength, int freebies) {
+			this.vertex = vertex;
+			this.maxLength = maxLength;
+			this.freebies = freebies;
+		}
+
+		public int compareTo(State o) {
+			return Integer.compare(maxLength, o.maxLength);
+		}
+
+	}
+
+}
