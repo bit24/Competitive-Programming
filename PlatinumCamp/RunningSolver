@@ -1,0 +1,52 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class RunningSolver {
+	
+	static int numMinutes;
+	static int maxExhaust;
+	
+	static int[][] dp;
+	static int[] distance;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numMinutes = Integer.parseInt(inputData.nextToken());
+		maxExhaust = Integer.parseInt(inputData.nextToken());
+		dp = new int[numMinutes+2][maxExhaust+1];
+		distance = new int[numMinutes+1];
+		for(int i = 1; i <= numMinutes; i++){
+			distance[i] = Integer.parseInt(reader.readLine());
+		}
+		
+		for(int i = 0; i <= numMinutes+1; i++){
+			for(int j = 0; j < maxExhaust+1; j++){
+				dp[i][j] = -1;
+			}
+		}
+		dp[1][0] = 0;
+		for(int i = 1; i <= numMinutes; i++){
+			for(int j = 0; j <= maxExhaust; j++){
+				if(dp[i][j] == -1){
+					continue;
+				}
+				if(j+1 <= maxExhaust){
+					dp[i+1][j+1] = Math.max(dp[i+1][j+1], dp[i][j]+distance[i]);
+				}
+				if(i+j <= numMinutes+1){
+					dp[i+j][0] = Math.max(dp[i+j][0], dp[i][j]);
+				}
+				if(j == 0){
+					dp[i+1][0] = Math.max(dp[i+1][0], dp[i][j]);
+				}
+			}
+		}
+		System.out.println(dp[numMinutes+1][0]);
+	}
+	
+	
+
+}
