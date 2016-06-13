@@ -1,0 +1,62 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class WorkSchedulingSolver {
+	
+	static int numJobs;
+	
+	static WorkSchedulingSolver helper = new WorkSchedulingSolver();
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		numJobs = Integer.parseInt(reader.readLine());
+		
+		PriorityQueue<Job> jobs = new PriorityQueue<Job>(numJobs, helper. new BYDEADLINE());
+		
+		for(int i = 0; i < numJobs; i++){
+			Job currentJob = helper. new Job();
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			currentJob.deadline = Long.parseLong(inputData.nextToken());
+			currentJob.profit = Long.parseLong(inputData.nextToken());
+			jobs.add(currentJob);
+		}
+		
+		long totalProfit = 0;
+		PriorityQueue<Job> jobQueue = new PriorityQueue<Job>(numJobs, helper. new BYPROFIT());
+		for(long currentTime = 1_000_000_000; currentTime >= 1; currentTime--){
+			while(!jobs.isEmpty() && jobs.peek().deadline == currentTime){
+				jobQueue.add(jobs.remove());
+			}
+			if(!jobQueue.isEmpty()){
+				totalProfit += jobQueue.remove().profit;
+			}
+			else if(!jobs.isEmpty()){
+				currentTime = jobs.peek().deadline+1;
+			}
+		}
+		System.out.println(totalProfit);
+	}
+	
+	class Job{
+		long deadline;
+		long profit;
+	}
+	
+	class BYPROFIT implements Comparator<Job>{
+		public int compare(Job o1, Job o2) {
+			return -Long.compare(o1.profit, o2.profit);
+		}
+	}
+	
+	class BYDEADLINE implements Comparator<Job>{
+		public int compare(Job o1, Job o2) {
+			return -Long.compare(o1.deadline, o2.deadline);
+		}
+	}
+	
+
+}
