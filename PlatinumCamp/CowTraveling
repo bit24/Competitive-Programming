@@ -1,0 +1,71 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class CowTraveling {
+
+	static int n;
+	static int m;
+	static int t;
+
+	static boolean[][] map;
+	
+	static int[] rMod = new int[]{-1, 0, 1, 0};
+	static int[] cMod = new int[]{0, 1, 0, -1};
+
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		n = Integer.parseInt(inputData.nextToken());
+		m = Integer.parseInt(inputData.nextToken());
+		t = Integer.parseInt(inputData.nextToken());
+		map = new boolean[n][m];
+
+		for (int i = 0; i < n; i++) {
+			String inputLine = reader.readLine();
+			for (int j = 0; j < m; j++) {
+				map[i][j] = inputLine.charAt(j) == '.';
+			}
+		}
+
+		inputData = new StringTokenizer(reader.readLine());
+		
+		int startR = Integer.parseInt(inputData.nextToken())-1;
+		int startC = Integer.parseInt(inputData.nextToken())-1;
+		
+		int endR = Integer.parseInt(inputData.nextToken())-1;
+		int endC = Integer.parseInt(inputData.nextToken())-1;
+		
+		long[][] numWays = new long[n][m];
+		
+		numWays[startR][startC] = 1;
+		
+		for(int currentTime = 1; currentTime <= t; currentTime++){
+			long[][] newNumWays = new long[n][m];
+			
+			for(int i = 0; i < n; i++){
+				for(int j = 0; j < m; j++){
+					if(!map[i][j] || numWays[i][j] == 0){
+						continue;
+					}
+					for(int direction = 0; direction < 4; direction++){
+						int newI = i + rMod[direction];
+						int newJ = j + cMod[direction];
+						if(!isLegal(newI, newJ)){
+							continue;
+						}
+						newNumWays[newI][newJ] += numWays[i][j];
+					}
+				}
+			}
+			numWays = newNumWays;
+		}
+		System.out.println(numWays[endR][endC]);
+	}
+	
+	public static boolean isLegal(int i, int j){
+		return i >= 0 && i < n && j >= 0 && j < m && map[i][j];
+	}
+}
