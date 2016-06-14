@@ -1,0 +1,49 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class BuyingHaySolver {
+
+	static int numUnits;
+	static int numOptions;
+
+	static int[] amount;
+	static int[] cost;
+
+	static int[] dp;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numOptions = Integer.parseInt(inputData.nextToken());
+		numUnits = Integer.parseInt(inputData.nextToken());
+
+		amount = new int[numOptions];
+		cost = new int[numOptions];
+
+		for (int i = 0; i < numOptions; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			amount[i] = Integer.parseInt(inputData.nextToken());
+			cost[i] = Integer.parseInt(inputData.nextToken());
+		}
+		reader.close();
+
+		dp = new int[numUnits + 1];
+		for (int i = 1; i <= numUnits; i++) {
+			int minCost = Integer.MAX_VALUE;
+			for (int j = 0; j < numOptions; j++) {
+				int newAmount = i - amount[j];
+				if (newAmount <= 0) {
+					minCost = Math.min(minCost, cost[j]);
+				} else {
+					minCost = Math.min(minCost, dp[newAmount] + cost[j]);
+				}
+			}
+			dp[i] = minCost;
+		}
+		
+		System.out.println(dp[numUnits]);
+	}
+
+}
