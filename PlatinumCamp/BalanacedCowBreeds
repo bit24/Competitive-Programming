@@ -1,0 +1,78 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class BalanacedCowBreeds {
+
+	static boolean OPEN = true;
+	static boolean CLOSE = false;
+
+	static int numElements;
+	static boolean[] data;
+
+	static int[] numOpen;
+
+	static int[][] numWays;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String inputLine = reader.readLine();
+
+		numElements = inputLine.length();
+		data = new boolean[numElements];
+		for (int i = 0; i < inputLine.length(); i++) {
+			data[i] = inputLine.charAt(i) == '(';
+		}
+
+		numOpen = new int[numElements + 1];
+
+		numOpen[0] = data[0] ? 1 : 0;
+		for (int i = 1; i < numElements; i++) {
+			numOpen[i] = numOpen[i - 1];
+			if (data[i]) {
+				numOpen[i]++;
+			} else {
+				numOpen[i]--;
+			}
+		}
+
+		numWays = new int[numElements + 1][numElements + 1];
+
+		numWays[0][0] = 1;
+		numWays[0][1] = 1;
+
+		for (int i = 0; i < numElements; i++) {
+			for (int j = 0; j < numElements; j++) {
+				if (numWays[i][j] == 0) {
+					continue;
+				}
+				compute(i, j);
+			}
+		}
+		System.out.println(numWays[numElements - 1][0] % 2012);
+	}
+
+	public static void compute(int currentIndex, int type1Opened) {
+		int type2Opened = numOpen[currentIndex] - type1Opened;
+
+		int currentNumWays = numWays[currentIndex][type1Opened] % 2012;
+
+		if (currentIndex + 1 >= numElements) {
+			return;
+		}
+
+		if (data[currentIndex + 1]) {
+			numWays[currentIndex + 1][type1Opened + 1] += currentNumWays;
+			numWays[currentIndex + 1][type1Opened] += currentNumWays;
+		} else {
+			if (type1Opened > 0) {
+				numWays[currentIndex + 1][type1Opened - 1] += currentNumWays;
+			}
+
+			if (type2Opened > 0) {
+				numWays[currentIndex + 1][type1Opened] += currentNumWays;
+			}
+		}
+	}
+
+}
