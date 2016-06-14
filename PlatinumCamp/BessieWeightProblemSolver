@@ -1,0 +1,53 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class BessieWeightProblemSolver {
+
+	static int numUnits;
+	static int numOptions;
+
+	static int[] weight;
+
+	static boolean[] dp;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+
+		numUnits = Integer.parseInt(inputData.nextToken());
+		numOptions = Integer.parseInt(inputData.nextToken());
+
+		weight = new int[numOptions + 1];
+
+		for (int i = 1; i <= numOptions; i++) {
+			weight[i] = Integer.parseInt(reader.readLine());
+		}
+		reader.close();
+
+		dp = new boolean[numUnits + 1];
+		dp[0] = true;
+		
+		for (int i = 1; i <= numOptions; i++) {
+			for (int j = numUnits; j >= 0; j--) {
+				dp[j] = dp[j];
+
+				if (j - weight[i] >= 0) {
+					dp[j] |= dp[j - weight[i]];
+				}
+			}
+		}
+
+		reader.close();
+
+		for (int i = numUnits; i >= 0; i--) {
+			if (dp[i]) {
+				System.out.println(i);
+				break;
+			}
+		}
+
+	}
+
+}
