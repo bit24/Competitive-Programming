@@ -50,10 +50,7 @@ public class LightsOutSolver {
 		minHit[0][start] = 0;
 
 		for (int numCompleted = 0; numCompleted <= numElements; numCompleted++) {
-			for (int profile = 0; profile < (1 << modifierSize); profile++) {
-				
-				String currentProfile = Integer.toBinaryString(profile);
-				
+			for (int profile = 0; profile < (1 << modifierSize); profile++) {				
 
 				int currentLit = minLit[numCompleted][profile];
 				int currentHit = minHit[numCompleted][profile];
