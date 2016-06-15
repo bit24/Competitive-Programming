@@ -1,0 +1,104 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.StringTokenizer;
+
+public class OverplantingSolver {
+
+	static int numRectangles;
+
+	static int[] left;
+	static int[] right;
+	static int[] top;
+	static int[] bottom;
+
+	static int numEvents;
+	static int[] xEvents;
+
+	public static void main(String[] args) throws IOException {
+		// assert(false);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		numRectangles = Integer.parseInt(reader.readLine());
+		numEvents = numRectangles * 2;
+
+		left = new int[numRectangles];
+		right = new int[numRectangles];
+		top = new int[numRectangles];
+		bottom = new int[numRectangles];
+
+		xEvents = new int[numEvents];
+
+		for (int i = 0; i < numRectangles; i++) {
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			xEvents[i * 2] = left[i] = Integer.parseInt(inputData.nextToken());
+			top[i] = Integer.parseInt(inputData.nextToken());
+			xEvents[i * 2 + 1] = right[i] = Integer.parseInt(inputData.nextToken());
+			bottom[i] = Integer.parseInt(inputData.nextToken());
+		}
+
+		Arrays.sort(xEvents);
+
+		long answer = 0;
+
+		for (int horizontalIndex = 0; horizontalIndex < numEvents; horizontalIndex++) {
+			int currentEvent = xEvents[horizontalIndex];
+
+			ArrayList<Event> yEvents = new ArrayList<Event>();
+
+			for (int currentRectangle = 0; currentRectangle < numRectangles; currentRectangle++) {
+				// if is relevant
+				if (left[currentRectangle] <= currentEvent && currentEvent < right[currentRectangle]) {
+					yEvents.add(new OverplantingSolver().new Event(bottom[currentRectangle], true));
+					yEvents.add(new OverplantingSolver().new Event(top[currentRectangle], false));
+				}
+			}
+
+			if (yEvents.isEmpty()) {
+				continue;
+			}
+
+			Collections.sort(yEvents);
+
+			long currentLength = 0;
+			int numRectangles = 0;
+
+			for (int verticalIndex = 0; verticalIndex < yEvents.size(); verticalIndex++) {
+				int bottomY = yEvents.get(verticalIndex).index;
+				if (yEvents.get(verticalIndex).isBottom) {
+					numRectangles++;
+				}
+				while (numRectangles > 0) {
+					numRectangles += (yEvents.get(++verticalIndex).isBottom ? 1 : -1);
+				}
+				int topY = yEvents.get(verticalIndex).index;
+				currentLength += (topY - bottomY);
+			}
+
+			int next = horizontalIndex + 1;
+			while (next + 1 < numEvents && xEvents[next] == xEvents[next + 1]) {
+				next++;
+			}
+			answer += currentLength * (xEvents[next] - xEvents[horizontalIndex]);
+			// horizontalIndex = next;
+		}
+		System.out.println(answer);
+	}
+
+	class Event implements Comparable<Event> {
+		int index;
+		boolean isBottom;
+
+		Event(int i, boolean b) {
+			index = i;
+			isBottom = b;
+		}
+
+		public int compareTo(Event e) {
+			return Integer.compare(index, e.index);
+		}
+	}
+
+}
