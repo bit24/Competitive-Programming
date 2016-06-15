@@ -1,0 +1,143 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class LightsOutSolver {
+
+	static int numElements;
+
+	static int modifierSize;
+
+	static long elements;
+
+	static int modifier;
+
+	static int[][] minLit;
+	static int[][] minHit;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numElements = Integer.parseInt(inputData.nextToken());
+		modifierSize = Integer.parseInt(inputData.nextToken());
+
+		//String inputLine = reader.readLine();
+		StringBuilder str1 = new StringBuilder(reader.readLine());
+		str1.reverse();
+		elements = Long.parseLong(str1.toString(), 2);
+
+		StringBuilder str = new StringBuilder(reader.readLine());
+		str.reverse();
+
+		modifier = Integer.parseInt(str.toString(), 2);
+
+		minLit = new int[numElements + 5][1 << modifierSize];
+		minHit = new int[numElements + 5][1 << modifierSize];
+
+		for (int[] i : minLit) {
+			Arrays.fill(i, Integer.MAX_VALUE/4);
+		}
+		for (int[] i : minHit) {
+			Arrays.fill(i, Integer.MAX_VALUE/4);
+		}
+
+		int mask = (1 << modifierSize) - 1;
+		int start = (int) (elements & mask);
+
+		minLit[0][start] = 0;
+		minHit[0][start] = 0;
+
+		for (int numCompleted = 0; numCompleted <= numElements; numCompleted++) {
+			for (int profile = 0; profile < (1 << modifierSize); profile++) {
+				
+				String currentProfile = Integer.toBinaryString(profile);
+				
+
+				int currentLit = minLit[numCompleted][profile];
+				int currentHit = minHit[numCompleted][profile];
+
+				if (currentLit >= Integer.MAX_VALUE / 4 || currentHit >= Integer.MAX_VALUE / 4) {
+					continue;
+				}
+
+				// case 1: don't hit it
+				int newProfile = profile;
+				int newlyLit = currentLit + (newProfile & 1);
+				
+				/*if(numCompleted > 5 && profile == 0){
+					assert(currentHit == 1);
+				}*/
+
+				// shift right, add new bit
+				newProfile >>= 1;
+				if ((elements & (1L << (numCompleted + modifierSize))) != 0) {
+					newProfile |= (1 << (modifierSize - 1));
+				}
+
+				if (minLit[numCompleted + 1][newProfile] > newlyLit) {
+					minLit[numCompleted + 1][newProfile] = newlyLit;
+					minHit[numCompleted + 1][newProfile] = currentHit;
+				}
+				else if (minLit[numCompleted + 1][newProfile] == newlyLit
+						&& minHit[numCompleted + 1][newProfile] > currentHit) {
+					minHit[numCompleted + 1][newProfile] = currentHit;
+				}
+				// case 1 complete
+
+				/*System.out.println("leave");
+				System.out.println(Integer.toBinaryString(profile));
+				System.out.println(Integer.toBinaryString(newProfile));
+				System.out.println();*/
+				
+				// case 2: hit it
+				if (numCompleted + modifierSize <= numElements) {
+					newProfile = profile ^ modifier;
+					newlyLit = currentLit + (newProfile & 1);
+
+					// shift right, add new bit
+					newProfile >>= 1;
+					if ((elements & (1L << (numCompleted + modifierSize))) != 0) {
+						newProfile |= (1 << (modifierSize - 1));
+					}
+
+					if (minLit[numCompleted + 1][newProfile] > newlyLit) {
+						minLit[numCompleted + 1][newProfile] = newlyLit;
+						minHit[numCompleted + 1][newProfile] = currentHit + 1;
+					}
+					else if (minLit[numCompleted + 1][newProfile] == newlyLit
+							&& minHit[numCompleted + 1][newProfile] > currentHit + 1) {
+						minHit[numCompleted + 1][newProfile] = currentHit + 1;
+					}
+				}
+				else{
+					//System.out.println(-1);
+				}
+				// case 2 complete
+				
+				/*System.out.println("hit");
+				System.out.println(Integer.toBinaryString(profile));
+				System.out.println(Integer.toBinaryString(profile ^ modifier));
+				System.out.println(Integer.toBinaryString(newProfile));
+				System.out.println();*/
+
+			}
+		}
+
+		int finalMinLit = Integer.MAX_VALUE;
+		int finalMinHit = Integer.MAX_VALUE;
+
+		for (int i = 0; i < (1 << modifierSize); i++) {
+			if (finalMinLit > minLit[numElements][i]) {
+				finalMinLit = minLit[numElements][i];
+				finalMinHit = minHit[numElements][i];
+			} else if (finalMinLit == minLit[numElements][i] && finalMinHit > minHit[numElements][i]) {
+				finalMinHit = minHit[numElements][i];
+			}
+		}
+		System.out.println(finalMinHit);
+
+	}
+
+}
