@@ -1,0 +1,55 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class EmptyStallsSolver {
+
+	static int numStalls;
+	static int[] numPreferred;
+	static boolean[] isFilled;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numStalls = Integer.parseInt(inputData.nextToken());
+		numPreferred = new int[numStalls];
+		int linesLeft = Integer.parseInt(inputData.nextToken());
+		while (linesLeft-- > 0) {
+			inputData = new StringTokenizer(reader.readLine());
+			int X = Integer.parseInt(inputData.nextToken());
+			int Y = Integer.parseInt(inputData.nextToken());
+			long A = Integer.parseInt(inputData.nextToken());
+			int B = Integer.parseInt(inputData.nextToken());
+
+			for (int i = 1; i <= Y; i++) {
+				int index = (int) ((A*i+B) % numStalls);
+				numPreferred[index] += X;
+			}
+		}
+		isFilled = new boolean[numStalls];
+		
+		int overflow = 0;
+		for(int currentIndex = 0; currentIndex < numStalls; currentIndex++){
+			overflow += numPreferred[currentIndex];
+			if((overflow > 0  || numPreferred[currentIndex] != 0) && !isFilled[currentIndex]){
+				overflow--;
+				isFilled[currentIndex] = true;
+			}
+		}
+		for(int currentIndex = 0; currentIndex < numStalls; currentIndex++){
+			if((overflow > 0  || numPreferred[currentIndex] != 0) && !isFilled[currentIndex]){
+				overflow--;
+				isFilled[currentIndex] = true;
+			}
+		}
+		for(int currentIndex = 0; currentIndex < numStalls; currentIndex++){
+			if(!isFilled[currentIndex]){
+				System.out.println(currentIndex);
+				break;
+			}
+		}
+
+	}
+
+}
