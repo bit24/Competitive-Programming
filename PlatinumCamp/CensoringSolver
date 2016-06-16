@@ -1,0 +1,65 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+
+public class CensoringSolver {
+
+	static String text;
+	static String pattern;
+	static StringBuilder currentString = new StringBuilder(" ");
+	static int[] prefixTable;
+	static int[] state;
+	static int patternSize;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		text = reader.readLine();
+		pattern = reader.readLine();
+		reader.close();
+
+		computePrefixTable();
+		int previousPrefix = 0;
+
+		LinkedList<Character> inputStream = new LinkedList<Character>();
+		for (int i = 0; i < text.length(); i++) {
+			inputStream.add(text.charAt(i));
+		}
+		
+		state = new int[text.length()+1];
+		for (int currentIndex = 1; !inputStream.isEmpty(); currentIndex++) {
+			state[currentIndex] = previousPrefix;
+
+			currentString.append(inputStream.removeFirst());
+			while (previousPrefix >= 0 && pattern.charAt(previousPrefix) != currentString.charAt(currentIndex)) {
+				previousPrefix = prefixTable[previousPrefix];
+			}
+
+			previousPrefix++;
+			if (previousPrefix == patternSize) {
+				int start = currentIndex - pattern.length() + 1;
+				currentString.delete(start, currentString.length());
+				previousPrefix = state[start];
+				currentIndex = start-1;
+			}
+		}
+		currentString.deleteCharAt(0);
+		System.out.println(currentString.toString());
+	}
+
+	public static void computePrefixTable() {
+		patternSize = pattern.length();
+		prefixTable = new int[patternSize + 1];
+
+		prefixTable[0] = -1;
+		int previousPrefix = -1;
+
+		for (int currentIndex = 1; currentIndex <= patternSize; currentIndex++) {
+			while (previousPrefix >= 0 && pattern.charAt(previousPrefix) != pattern.charAt(currentIndex - 1)) {
+				previousPrefix = prefixTable[previousPrefix];
+			}
+			prefixTable[currentIndex] = ++previousPrefix;
+		}
+	}
+
+}
