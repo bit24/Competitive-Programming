@@ -1,0 +1,90 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+
+public class CityHorizonSolver {
+
+	static int numBuildings;
+
+	Event[] events;
+
+	TreeMap<Long, Integer> heights = new TreeMap<Long, Integer>();
+
+	public static void main(String[] args) throws IOException {
+		new CityHorizonSolver().execute();
+	}
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		numBuildings = Integer.parseInt(reader.readLine());
+
+		int numEvents = numBuildings * 2;
+		events = new Event[numEvents];
+
+		for (int i = 0; i < numBuildings; i++) {
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			int start = Integer.parseInt(inputData.nextToken());
+			int end = Integer.parseInt(inputData.nextToken());
+			long height = Integer.parseInt(inputData.nextToken());
+			events[i * 2] = new Event(start, true, height);
+			events[i * 2 + 1] = new Event(end, false, height);
+		}
+		Arrays.sort(events);
+		
+		long totalArea = 0;
+		for (int nextEvent = 0; nextEvent < numEvents;) {
+			int currentIndex = events[nextEvent].index;
+
+			while (nextEvent < numEvents && events[nextEvent].index == currentIndex) {
+				Event testEvent = events[nextEvent];
+				if (testEvent.start) {
+					add(testEvent.height);
+				} else {
+					delete(testEvent.height);
+				}
+				nextEvent++;
+			}
+			if(heights.isEmpty()){
+				continue;
+			}
+			long maxHeight = heights.lastKey();
+			totalArea += maxHeight*(events[nextEvent].index-events[nextEvent-1].index);
+		}
+		System.out.println(totalArea);
+	}
+
+	public void add(long height) {
+		if (heights.containsKey(height)) {
+			heights.put(height, heights.get(height) + 1);
+		} else {
+			heights.put(height, 1);
+		}
+	}
+
+	public void delete(long height) {
+		heights.put(height, heights.get(height) - 1);
+		if (heights.get(height) == 0) {
+			heights.remove(height);
+		}
+	}
+
+	class Event implements Comparable<Event> {
+		int index;
+		boolean start;
+		long height;
+
+		Event(int a, boolean b, long c) {
+			index = a;
+			start = b;
+			height = c;
+		}
+
+		public int compareTo(Event o) {
+			return Integer.compare(index, o.index);
+		}
+	}
+
+}
