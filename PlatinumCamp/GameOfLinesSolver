@@ -1,0 +1,95 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.StringTokenizer;
+
+public class GameOfLinesSolver {
+
+	// HashSet abuse!
+
+	int[] x;
+	int[] y;
+	int numPoints;
+
+	public static void main(String[] args) throws IOException {
+		new GameOfLinesSolver().execute();
+	}
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		numPoints = Integer.parseInt(reader.readLine());
+		
+		x = new int[numPoints];
+		y = new int[numPoints];
+		for (int i = 0; i < numPoints; i++) {
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			x[i] = Integer.parseInt(inputData.nextToken());
+			y[i] = Integer.parseInt(inputData.nextToken());
+		}
+
+		HashSet<Fraction> slopes = new HashSet<Fraction>();
+		for (int point1 = 0; point1 < numPoints; point1++) {
+			for (int point2 = 0; point2 < numPoints; point2++) {
+				if (point1 == point2) {
+					continue;
+				}
+				if (x[point1] == x[point2]) {
+					slopes.add(new Fraction(false, 0, 0));
+				} else {
+					slopes.add(new Fraction(true, y[point1] - y[point2], x[point1] - x[point2]));
+				}
+			}
+		}
+		System.out.println(slopes.size());
+
+	}
+
+	class Fraction {
+		boolean isDefined;
+		int numerator;
+		int denominator;
+
+		public boolean equals(Object o) {
+			Fraction other = (Fraction) o;
+
+			if (!isDefined) {
+				return !other.isDefined;
+			}
+			if (!other.isDefined) {
+				return false;
+			} else {
+				return numerator == other.numerator && denominator == other.denominator;
+			}
+		}
+
+		public int hashCode() {
+			return (isDefined ? 1 : 0) + 1 + numerator * 101 + denominator;
+		}
+
+		Fraction(boolean isDefined, int numerator, int denominator) {
+			if (!isDefined) {
+				this.isDefined = false;
+			} else {
+				int GCD = GCD(numerator, denominator);
+				numerator /= GCD;
+				denominator /= GCD;
+				if (denominator < 0) {
+					numerator *= -1;
+				}
+			}
+			this.isDefined = isDefined;
+			this.numerator = numerator;
+			this.denominator = denominator;
+		}
+
+		public int GCD(int a, int b) {
+			if (b == 0) {
+				return a;
+			}
+			return GCD(b, a % b);
+		}
+
+	}
+
+}
