@@ -1,0 +1,62 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class BestCowLineGoldSolver {
+
+	static int length;
+	static int left;
+	static int right;
+
+	static char[] letters;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		length = Integer.parseInt(reader.readLine());
+
+		letters = new char[length];
+
+		for (int i = 0; i < length; i++) {
+			letters[i] = reader.readLine().charAt(0);
+		}
+
+		StringBuffer min = new StringBuffer();
+
+		left = 0;
+		right = length - 1;
+
+		for (int i = 0; i < length; i++) {
+			if (leftSmaller(left, right)) {
+				min.append(letters[left]);
+				left++;
+			} else {
+				min.append(letters[right]);
+				right--;
+			}
+		}
+
+		for (int i = 0; i < letters.length; i += 80) {
+			if (i + 80 <= min.length()) {
+				System.out.println(min.substring(i, i + 80));
+			}
+			else{
+				System.out.println(min.substring(i, min.length()));
+			}
+		}
+	}
+
+	public static boolean leftSmaller(int left, int right) {
+		while (left < right) {
+			if (letters[left] < letters[right]) {
+				return true;
+			}
+			if (letters[left] > letters[right]) {
+				return false;
+			}
+			left++;
+			right--;
+		}
+		return false;
+	}
+
+}
