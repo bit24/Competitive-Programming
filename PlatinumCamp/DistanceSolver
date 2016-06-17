@@ -1,0 +1,136 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class DistanceSolver {
+	public static void main(String[] args) throws IOException {
+		try {
+			new DistanceSolver().execute();
+		} catch (Exception e) {
+		}
+	}
+
+	ArrayList<ArrayList<Integer>> aList = new ArrayList<ArrayList<Integer>>();
+	int[] parent;
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		int numVertices = Integer.parseInt(inputData.nextToken());
+		int numQueries = Integer.parseInt(inputData.nextToken());
+
+		aList = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < numVertices; i++) {
+			aList.add(new ArrayList<Integer>());
+		}
+
+		for (int i = 1; i < numVertices; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			aList.get(a).add(b);
+			aList.get(b).add(a);
+		}
+
+		int root = 0;
+		parent = new int[numVertices];
+
+		dfs(root, new boolean[numVertices]);
+		BinaryJumpRangeMinimumQuery answer = new BinaryJumpRangeMinimumQuery(root, aList, parent);
+
+		ArrayList<Integer> output = new ArrayList<Integer>();
+		for (int i = 0; i < numQueries; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			output.add(answer.depth[a] + answer.depth[b] - 2 * answer.depth[answer.findLeastCommonAncestor(a, b)]);
+		}
+		for (int i : output) {
+			System.out.println(i);
+		}
+	}
+
+	public void dfs(int index, boolean[] visited) {
+		visited[index] = true;
+		for (int child : aList.get(index)) {
+			if (!visited[child]) {
+				aList.get(child).remove(new Integer(index));
+				parent[child] = index;
+				dfs(child, visited);
+			}
+		}
+	}
+
+	public class BinaryJumpRangeMinimumQuery {
+
+		int[][] ancestor;
+		int[] depth;
+
+		int numVertices;
+
+		int root;
+		ArrayList<ArrayList<Integer>> children;
+		int[] parent;
+
+		public BinaryJumpRangeMinimumQuery(int root, ArrayList<ArrayList<Integer>> children, int[] parent) {
+			this.root = root;
+			this.numVertices = parent.length;
+			this.children = children;
+			this.parent = parent;
+			init();
+		}
+
+		public void init() {
+			ancestor = new int[numVertices][20];
+			for (int i = 0; i < numVertices; i++) {
+				ancestor[i][0] = parent[i];
+			}
+			for (int k = 0; k < 17; k++) {
+				for (int i = 0; i < numVertices; i++) {
+					ancestor[i][k + 1] = ancestor[ancestor[i][k]][k];
+				}
+			}
+			depth = new int[numVertices];
+			dfs(root, 0, new boolean[numVertices]);
+		}
+
+		public void dfs(int i, int currentDepth, boolean[] visited) {
+			visited[i] = true;
+			depth[i] = currentDepth;
+			for (int child : children.get(i)) {
+				if (!visited[child]) {
+					dfs(child, currentDepth + 1, visited);
+				}
+			}
+		}
+
+		public int findLeastCommonAncestor(int a, int b) {
+			if (depth[a] > depth[b]) {
+				return findLeastCommonAncestor(b, a);
+			}
+			int difference = depth[b] - depth[a];
+
+			for (int i = 0; i <= 17; i++) {
+				if ((difference & (1 << i)) > 0) {
+					b = ancestor[b][i];
+				}
+			}
+
+			if (a == b) {
+				return a;
+			}
+
+			for (int i = 17; i >= 0; i--) {
+				if (ancestor[a][i] != ancestor[b][i]) {
+					a = ancestor[a][i];
+					b = ancestor[b][i];
+				}
+			}
+			return parent[a];
+		}
+
+	}
+}
