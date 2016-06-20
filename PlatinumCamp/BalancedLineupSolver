@@ -1,0 +1,144 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class BalancedLineupSolver {
+
+	public static void main(String[] args) throws IOException {
+		new BalancedLineupSolver().execute();
+	}
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+
+		int numElements = Integer.parseInt(inputData.nextToken());
+		int numQueries = Integer.parseInt(inputData.nextToken());
+
+		int[] data = new int[numElements];
+		for (int i = 0; i < numElements; i++) {
+			data[i] = Integer.parseInt(reader.readLine());
+		}
+
+		MaxSegmentTree maximum = new MaxSegmentTree();
+		maximum.build(data);
+
+		MinSegmentTree minimum = new MinSegmentTree();
+		minimum.build(data);
+
+		ArrayList<Integer> output = new ArrayList<Integer>();
+
+		for (int i = 0; i < numQueries; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken());
+			int max = maximum.query(a, b);
+			int min = minimum.query(a, b);
+			output.add(max - min);
+		}
+		for (int i : output) {
+			System.out.println(i);
+		}
+
+	}
+
+	public class MaxSegmentTree {
+
+		int size;
+		int[] data;
+
+		void build(int[] input) {
+			int maxPower = 0;
+			int inputLength = input.length;
+			while (inputLength != 0) {
+				inputLength >>= 1;
+				maxPower++;
+			}
+			size = 1 << maxPower;
+			data = new int[size * 2];
+
+			for (int i = 0; i < input.length; i++) {
+				data[i + size] = input[i];
+			}
+			for (int i = size - 1; i > 0; i--) {
+				data[i] = function(data[i << 1], data[i << 1 | 1]);
+			}
+		}
+
+		void modify(int index, int newValue) {
+			for (data[index += size] = newValue; index > 1; index >>= 1) {
+				data[index >> 1] = data[index] + data[index ^ 1];
+			}
+		}
+
+		// left inclusive, right exclusive
+		int query(int left, int right) {
+			int ans = 0;
+			for (left += size, right += size; left < right; left >>= 1, right >>= 1) {
+				if ((left & 1) != 0) {
+					ans = function(ans, data[left++]);
+				}
+				// because right exclusive
+				if ((right & 1) != 0) {
+					ans = function(ans, data[--right]);
+				}
+			}
+			return ans;
+		}
+
+		public int function(int a, int b) {
+			return Math.max(a, b);
+		}
+	}
+
+	public class MinSegmentTree {
+
+		int size;
+		int[] data;
+
+		void build(int[] input) {
+			int maxPower = 0;
+			int inputLength = input.length;
+			while (inputLength != 0) {
+				inputLength >>= 1;
+				maxPower++;
+			}
+			size = 1 << maxPower;
+			data = new int[size * 2];
+
+			for (int i = 0; i < input.length; i++) {
+				data[i + size] = input[i];
+			}
+			for (int i = size - 1; i > 0; i--) {
+				data[i] = function(data[i << 1], data[i << 1 | 1]);
+			}
+		}
+
+		void modify(int index, int newValue) {
+			for (data[index += size] = newValue; index > 1; index >>= 1) {
+				data[index >> 1] = data[index] + data[index ^ 1];
+			}
+		}
+
+		// left inclusive, right exclusive
+		int query(int left, int right) {
+			int ans = Integer.MAX_VALUE / 4;
+			for (left += size, right += size; left < right; left >>= 1, right >>= 1) {
+				if ((left & 1) != 0) {
+					ans = function(ans, data[left++]);
+				}
+				// because right exclusive
+				if ((right & 1) != 0) {
+					ans = function(ans, data[--right]);
+				}
+			}
+			return ans;
+		}
+
+		public int function(int a, int b) {
+			return Math.min(a, b);
+		}
+	}
+}
