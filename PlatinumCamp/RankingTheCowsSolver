@@ -1,0 +1,68 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class RankingTheCowsSolver {
+	
+	static ArrayList<ArrayList<Integer>> aList = new ArrayList<ArrayList<Integer>>();
+	static ArrayList<ArrayList<Integer>> bList = new ArrayList<ArrayList<Integer>>();
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		int numVertices = Integer.parseInt(inputData.nextToken());
+		int numEdges = Integer.parseInt(inputData.nextToken());
+		
+		for(int i = 0; i < numVertices; i++){
+			aList.add(new ArrayList<Integer>());
+			bList.add(new ArrayList<Integer>());
+		}
+		
+		for(int i = 0; i < numEdges; i++){
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			aList.get(a).add(b);
+			bList.get(b).add(a);
+		}
+		
+		int answer = 0;
+		
+		for(int i = 0; i < numVertices; i++){
+			boolean[] visitedA = new boolean[numVertices];
+			boolean[] visitedB = new boolean[numVertices];
+			dfsa(i, visitedA);
+			dfsb(i, visitedB);
+			
+			for(int j = 0; j < numVertices; j++){
+				if(!visitedA[j] && !visitedB[j]){
+					answer++;
+				}
+			}
+		}
+		System.out.println(answer/2);
+	}
+	
+	public static void dfsa(int index, boolean[] visited){
+		visited[index] = true;
+		
+		for(int neighbor : aList.get(index)){
+			if(!visited[neighbor]){
+				dfsa(neighbor, visited);
+			}
+		}
+	}
+	
+	public static void dfsb(int index, boolean[] visited){
+		visited[index] = true;
+		
+		for(int neighbor : bList.get(index)){
+			if(!visited[neighbor]){
+				dfsb(neighbor, visited);
+			}
+		}
+	}
+
+}
