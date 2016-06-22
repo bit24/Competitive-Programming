@@ -1,0 +1,122 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class CheeringUpTheCowsSolver {
+
+	static int numVertices;
+	static int numEdges;
+
+	static Edge[] edges;
+
+	static CheeringUpTheCowsSolver helper = new CheeringUpTheCowsSolver();
+
+	static int[] parent;
+	static long totalDistance;
+
+	public static boolean merge(int a, int b) {
+		int aParent = findParent(a);
+		int bParent = findParent(b);
+
+		if (aParent == bParent) {
+			assert (false);
+		}
+
+		parent[aParent] = bParent;
+
+		return true;
+	}
+
+	public static boolean connectSameComponents(Edge a, Edge b) {
+		if (inSameSet(a.endPointA, b.endPointA) && inSameSet(a.endPointB, b.endPointB)) {
+			return true;
+		} else if (inSameSet(a.endPointA, b.endPointB) && inSameSet(a.endPointB, b.endPointA)) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	public static boolean inSameSet(int a, int b) {
+		int aParent = findParent(a);
+		int bParent = findParent(b);
+
+		if (aParent == bParent) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static int findParent(int x) {
+		if (parent[x] == x) {
+			return x;
+		} else {
+			return parent[x] = findParent(parent[x]);
+		}
+	}
+
+	static int[] cost;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numVertices = Integer.parseInt(inputData.nextToken());
+		numEdges = Integer.parseInt(inputData.nextToken());
+
+		edges = new Edge[numEdges];
+		parent = new int[numVertices];
+		cost = new int[numVertices];
+		
+		int minCost = Integer.MAX_VALUE;
+		for (int i = 0; i < numVertices; i++) {
+			cost[i] = Integer.parseInt(reader.readLine());
+			minCost = Math.min(minCost, cost[i]);
+		}
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			int c = Integer.parseInt(inputData.nextToken());
+			Edge e1 = helper.new Edge(a, b, cost[a] + cost[b] + 2 * c);
+			edges[i] = e1;
+		}
+		Arrays.sort(edges);
+
+		for (int i = 0; i < numVertices; i++) {
+			parent[i] = i;
+		}
+
+		for (Edge edge : edges) {
+			if (!inSameSet(edge.endPointA, edge.endPointB)) {
+				merge(edge.endPointA, edge.endPointB);
+				totalDistance += edge.length;
+			}
+		}
+		
+		System.out.println(totalDistance + minCost);
+	}
+
+	class Edge implements Comparable<Edge> {
+		int endPointA;
+		int endPointB;
+
+		int length;
+
+		public int compareTo(Edge o) {
+			return Integer.compare(length, o.length);
+		}
+
+		public Edge(int endPointA, int endPointB, int length) {
+			this.endPointA = endPointA;
+			this.endPointB = endPointB;
+			this.length = length;
+		}
+
+	}
+
+}
