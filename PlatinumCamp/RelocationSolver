@@ -1,0 +1,146 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
+
+public class RelocationSolver {
+
+	public static void main(String[] args) throws IOException {
+		new RelocationSolver().execute();
+	}
+
+	ArrayList<ArrayList<ListItem>> aList = new ArrayList<ArrayList<ListItem>>();
+
+	int[][] cost;
+
+	int numVertices;
+	int numEdges;
+	int numMarkets;
+
+	int[] markets;
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numVertices = Integer.parseInt(inputData.nextToken());
+		numEdges = Integer.parseInt(inputData.nextToken());
+		numMarkets = Integer.parseInt(inputData.nextToken());
+
+		for (int i = 0; i < numVertices; i++) {
+			aList.add(new ArrayList<ListItem>());
+		}
+
+		markets = new int[numMarkets];
+		for (int i = 0; i < numMarkets; i++) {
+			markets[i] = Integer.parseInt(reader.readLine()) - 1;
+		}
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			short c = Short.parseShort(inputData.nextToken());
+			aList.get(a).add(new ListItem(b, c));
+			aList.get(b).add(new ListItem(a, c));
+		}
+		
+		cost = new int[numVertices][];
+		for(int i = 0; i < numMarkets; i++){
+			int marketIndex = markets[i];
+			djikstra(marketIndex);
+		}
+		
+		int minCost = Integer.MAX_VALUE;
+		verticesLoop: for (int i = 0; i < numVertices; i++) {
+			for (int j = 0; j < numMarkets; j++) {
+				if (i == markets[j]) {
+					continue verticesLoop;
+				}
+			}
+
+			for (int j = 0; j < numMarkets; j++) {
+				int marketIndex = markets[j];
+				int currentCost = cost[marketIndex][i];
+				currentCost += dfs(marketIndex, new boolean[numVertices], i);
+				minCost = Math.min(minCost, currentCost);
+			}
+		}
+		System.out.println(minCost);
+	}
+
+	public int dfs(int index, boolean[] visited, int end) {
+		visited[index] = true;
+		int min = Integer.MAX_VALUE / 4;
+
+		boolean allVisited = true;
+		for (int market : markets) {
+			if (visited[market]) {
+				continue;
+			}
+			allVisited = false;
+			visited[market] = true;
+			min = Math.min(cost[index][market] + dfs(market, visited, end), min);
+			visited[market] = false;
+		}
+		if (allVisited) {
+			return cost[index][end];
+		}
+		return min;
+	}
+
+	public void djikstra(int source) {
+		PriorityQueue<State> queue = new PriorityQueue<State>();
+		cost[source] = new int[numVertices];
+		Arrays.fill(cost[source], Integer.MAX_VALUE);
+		queue.add(new State(source, 0));
+		cost[source][source] = 0;
+
+		while (!queue.isEmpty()) {
+			State currentState = queue.remove();
+
+			if (currentState.cost > cost[source][currentState.vertex]) {
+				continue;
+			}
+
+			for (ListItem item : aList.get(currentState.vertex)) {
+				int newCost = currentState.cost + item.length;
+				if (newCost < cost[source][item.vertex]) {
+					cost[source][item.vertex] = newCost;
+					queue.add(new State(item.vertex, newCost));
+				}
+			}
+		}
+	}
+	class ListItem{
+		int vertex;
+		int length;
+		
+		ListItem(int a, int b){
+			vertex = a;
+			length = b;
+		}
+	}
+
+	class State implements Comparable<State> {
+		int cost;
+		int vertex;
+
+		State(int a, int b) {
+			this.vertex = a;
+			this.cost = b;
+		}
+
+		public int compareTo(State o) {
+			return Integer.compare(cost, o.cost);
+		}
+
+		public boolean equals(Object other) {
+			State oTuple = (State) other;
+			return cost == oTuple.cost && vertex == oTuple.vertex;
+		}
+	}
+
+}
