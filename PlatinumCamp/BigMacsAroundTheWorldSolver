@@ -1,0 +1,94 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.StringTokenizer;
+
+public class BigMacsAroundTheWorldSolver {
+
+	public static void main(String[] args) throws IOException {
+		new BigMacsAroundTheWorldSolver().execute();
+	}
+
+	ArrayList<Edge> edges = new ArrayList<Edge>();
+	double[] distance;
+	int numVertices;
+	int numEdges;
+	double startingCost;
+	int startVertex;
+	int endVertex;
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numVertices = Integer.parseInt(inputData.nextToken());
+		numEdges = Integer.parseInt(inputData.nextToken());
+
+		startingCost = Math.log10(Double.parseDouble(inputData.nextToken()));
+
+		startVertex = Integer.parseInt(inputData.nextToken()) - 1;
+		endVertex = Integer.parseInt(inputData.nextToken()) - 1;
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int a = Integer.parseInt(inputData.nextToken()) - 1;
+			int b = Integer.parseInt(inputData.nextToken()) - 1;
+			double c = Math.log10(Double.parseDouble(inputData.nextToken()));
+			edges.add(new Edge(a, b, c));
+		}
+		double result = bellmanFord(startVertex, endVertex);
+
+		if (result == Double.NEGATIVE_INFINITY) {
+			System.out.println(0);
+		} else {
+			long answer = (long) Math.pow(10, result);
+			System.out.println(answer);
+		}
+	}
+
+	public double bellmanFord(int source, int end) {
+		distance = new double[numVertices];
+		Arrays.fill(distance, Double.POSITIVE_INFINITY);
+
+		distance[source] = startingCost;
+		Collections.sort(edges);
+
+		for (int i = 0; i < numVertices - 1; i++) {
+			for (Edge e : edges) {
+				double newCost = distance[e.endPointA] + e.length;
+				if (distance[e.endPointB] > newCost) {
+					distance[e.endPointB] = newCost;
+				}
+			}
+		}
+
+		for (Edge e : edges) {
+			if (distance[e.endPointA] != Double.POSITIVE_INFINITY) {
+				if (distance[e.endPointB] > distance[e.endPointA] + e.length) {
+					return Double.NEGATIVE_INFINITY;
+				}
+			}
+		}
+		return distance[end];
+	}
+
+	class Edge implements Comparable<Edge> {
+		int endPointA;
+		int endPointB;
+
+		double length;
+
+		public int compareTo(Edge o) {
+			return Double.compare(length, o.length);
+		}
+
+		public Edge(int endPointA, int endPointB, double length) {
+			this.endPointA = endPointA;
+			this.endPointB = endPointB;
+			this.length = length;
+		}
+	}
+
+}
