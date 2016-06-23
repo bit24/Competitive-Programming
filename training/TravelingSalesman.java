@@ -97,20 +97,6 @@ public class TravelingSalesman {
 				}
 			}
 			
-			/*
-			for (int previous : aList.get(endVertex)) {
-
-				// contains element
-				if ((newBitSet & (1 << previous)) != 0) {
-
-					int subsetCost = cache[endVertex][bitSet] != UNDECIDED ? cache[endVertex][bitSet]
-							: tsp(previous, newBitSet);
-
-					if (subsetCost != Integer.MAX_VALUE) {
-						min = Math.min(min, subsetCost + cost[previous][endVertex]);
-					}
-				}
-			}*/
 		}
 		cache[endVertex][bitSet] = min;
 		return min;
