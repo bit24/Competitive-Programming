@@ -1,0 +1,92 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
+
+public class TheCowPromSolver {
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+
+		int numVertices = Integer.parseInt(inputData.nextToken());
+		int numEdges = Integer.parseInt(inputData.nextToken());
+		ArrayList<ArrayList<Integer>> aList = new ArrayList<ArrayList<Integer>>();
+
+		for (int i = 0; i < numVertices; i++) {
+			aList.add(new ArrayList<Integer>());
+		}
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int endPointA = Integer.parseInt(inputData.nextToken()) - 1;
+			int endPointB = Integer.parseInt(inputData.nextToken()) - 1;
+
+			aList.get(endPointA).add(endPointB);
+		}
+		reader.close();
+
+		new TheCowPromSolver().findSCCs(numVertices, numEdges, aList);
+		System.out.println(answer);
+	}
+
+	ArrayList<ArrayList<Integer>> aList;
+
+	int[] low;
+	int[] disc;
+	int currentTime = 0;
+
+	static LinkedList<Integer> stack = new LinkedList<Integer>();
+
+	static int answer = 0;
+
+	public void findSCCs(int numVertices, int numEdges, ArrayList<ArrayList<Integer>> aList) {
+		this.aList = aList;
+
+		low = new int[numVertices];
+		disc = new int[numVertices];
+
+		// mark "not visited"
+		Arrays.fill(disc, -1);
+
+		for (int i = 0; i < numVertices; i++) {
+			if (disc[i] == -1) {
+				dfs(i);
+			}
+		}
+	}
+
+	void dfs(int currentVertex) {
+		disc[currentVertex] = currentTime;
+		low[currentVertex] = currentTime++;
+		stack.push(currentVertex);
+
+		for (int neighbor : aList.get(currentVertex)) {
+
+			if (disc[neighbor] == -1) {
+				dfs(neighbor);
+			}
+
+			if (low[neighbor] < low[currentVertex]) {
+				low[currentVertex] = low[neighbor];
+			}
+
+		}
+		if (disc[currentVertex] == low[currentVertex]) {
+			boolean nonSingular = false;
+			while (stack.peek() != currentVertex) {
+				low[stack.pop()] = Integer.MAX_VALUE;
+				nonSingular = true;
+			}
+			low[stack.pop()] = Integer.MAX_VALUE;
+			if (nonSingular) {
+				answer++;
+			}
+		}
+
+	}
+
+}
