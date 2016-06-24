@@ -1,0 +1,26 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.PriorityQueue;
+
+public class FenceRepairSolver {
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		int numElements = Integer.parseInt(reader.readLine());
+
+		PriorityQueue<Long> queue = new PriorityQueue<Long>();
+		for (int i = 0; i < numElements; i++) {
+			queue.add(Long.parseLong(reader.readLine()));
+		}
+
+		long cost = 0;
+		while (queue.size() > 1) {
+			long element1 = queue.remove();
+			long element2 = queue.remove();
+			queue.add(element1 + element2);
+			cost += element1 + element2;
+		}
+		System.out.println(cost);
+	}
+}
