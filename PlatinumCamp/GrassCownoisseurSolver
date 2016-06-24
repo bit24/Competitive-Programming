@@ -1,0 +1,181 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
+public class GrassCownoisseurSolver {
+
+	public static void main(String[] args) throws IOException {
+		new GrassCownoisseurSolver().execute();
+	}
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+
+		int numVertices = Integer.parseInt(inputData.nextToken());
+		int numEdges = Integer.parseInt(inputData.nextToken());
+		verticesAList = new ArrayList<ArrayList<Integer>>();
+
+		for (int i = 0; i < numVertices; i++) {
+			verticesAList.add(new ArrayList<Integer>());
+		}
+
+		for (int i = 0; i < numEdges; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			int endPointA = Integer.parseInt(inputData.nextToken()) - 1;
+			int endPointB = Integer.parseInt(inputData.nextToken()) - 1;
+
+			verticesAList.get(endPointA).add(endPointB);
+		}
+		reader.close();
+		findSCCs(numVertices, numEdges, verticesAList);
+		numComponents = SCCs.size();
+
+		componentSize = new int[numComponents];
+
+		ArrayList<TreeSet<Integer>> SCCedgeSet = new ArrayList<TreeSet<Integer>>();
+		for(int i = 0; i < numComponents; i++){
+			SCCedgeSet.add(new TreeSet<Integer>());
+		}
+		
+		
+		for (int i = 0; i < numVertices; i++) {
+			componentSize[componentNumber[i]]++;
+			for (int j : verticesAList.get(i)) {
+				if (componentNumber[i] != componentNumber[j]) {
+					SCCedgeSet.get(componentNumber[i]).add(componentNumber[j]);
+				}
+			}
+		}
+
+		ArrayList<ArrayList<Integer>> DAGaList = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < numComponents; i++) {
+			DAGaList.add(new ArrayList<Integer>(SCCedgeSet.get(i)));
+		}
+		
+		LinkedList<Integer> topologicalOrdering = new LinkedList<Integer>();
+		TopoSortDFS(topologicalOrdering, DAGaList, componentNumber[0], new boolean[numVertices]);
+
+		maxAway = findMaxValues(topologicalOrdering, DAGaList);
+
+		ArrayList<ArrayList<Integer>> reverseDAGaList = new ArrayList<ArrayList<Integer>>();
+
+		for (int i = 0; i < numComponents; i++) {
+			reverseDAGaList.add(new ArrayList<Integer>());
+		}
+		for (int i = 0; i < numComponents; i++) {
+			for (int j : DAGaList.get(i)) {
+				reverseDAGaList.get(j).add(i);
+			}
+		}
+
+		LinkedList<Integer> differentTopologicalOrdering = new LinkedList<Integer>();
+		TopoSortDFS(differentTopologicalOrdering, reverseDAGaList, componentNumber[0], new boolean[numVertices]);
+		maxIn = findMaxValues(differentTopologicalOrdering, reverseDAGaList);
+
+		int maxValue = 0;
+
+		for (int i = 0; i < numComponents; i++) {
+			for (int j : reverseDAGaList.get(i)) {
+				maxValue = Math.max(maxValue, maxAway[i] + maxIn[j] - componentSize[componentNumber[0]]);
+				assert(maxValue >= 0);
+			}
+		}
+		if(maxValue <= 0){
+			maxValue = componentSize[componentNumber[0]];
+		}
+		
+		System.out.println(maxValue);
+	}
+
+	public int[] findMaxValues(LinkedList<Integer> topologicalOrdering, ArrayList<ArrayList<Integer>> aList) {
+		int[] maxValue = new int[numComponents];
+		Arrays.fill(maxValue, Integer.MIN_VALUE/4);
+		maxValue[topologicalOrdering.peekFirst()] = componentSize[topologicalOrdering.peekFirst()];
+		for (int i : topologicalOrdering) {
+			int currentMax = maxValue[i];
+			for (int neighbor : aList.get(i)) {
+				maxValue[neighbor] = Math.max(maxValue[neighbor], currentMax + componentSize[neighbor]);
+			}
+		}
+		return maxValue;
+	}
+
+	public void TopoSortDFS(LinkedList<Integer> topologicalOrdering, ArrayList<ArrayList<Integer>> aList, int index,
+			boolean[] visited) {
+		visited[index] = true;
+		for (int neighbor : aList.get(index)) {
+			if (!visited[neighbor]) {
+				TopoSortDFS(topologicalOrdering, aList, neighbor, visited);
+			}
+		}
+		topologicalOrdering.addFirst(index);
+	}
+
+	ArrayList<ArrayList<Integer>> verticesAList;
+	int[] low;
+	int[] disc;
+	int currentTime = 0;
+	LinkedList<Integer> stack = new LinkedList<Integer>();
+	int[] componentNumber;
+	ArrayList<ArrayList<Integer>> SCCs;
+	int numComponents;
+
+	int[] componentSize;
+	int[] maxAway;
+	int[] maxIn;
+
+	public void findSCCs(int numVertices, int numEdges, ArrayList<ArrayList<Integer>> aList) {
+		this.verticesAList = aList;
+
+		low = new int[numVertices];
+		disc = new int[numVertices];
+		componentNumber = new int[numVertices];
+		SCCs = new ArrayList<ArrayList<Integer>>();
+
+		// mark "not visited"
+		Arrays.fill(disc, -1);
+
+		for (int i = 0; i < numVertices; i++) {
+			if (disc[i] == -1) {
+				SCCDFS(i);
+			}
+		}
+	}
+
+	void SCCDFS(int currentVertex) {
+		disc[currentVertex] = currentTime;
+		low[currentVertex] = currentTime++;
+		stack.push(currentVertex);
+
+		for (int neighbor : verticesAList.get(currentVertex)) {
+
+			if (disc[neighbor] == -1) {
+				SCCDFS(neighbor);
+			}
+
+			if (low[neighbor] < low[currentVertex]) {
+				low[currentVertex] = low[neighbor];
+			}
+
+		}
+		if (disc[currentVertex] == low[currentVertex]) {
+			SCCs.add(new ArrayList<Integer>());
+			while (stack.peek() != currentVertex) {
+				low[stack.peek()] = Integer.MAX_VALUE/4;
+				componentNumber[stack.peek()] = SCCs.size() - 1;
+				SCCs.get(SCCs.size() - 1).add(stack.pop());
+			}
+			low[stack.peek()] = Integer.MAX_VALUE/4;
+			componentNumber[stack.peek()] = SCCs.size() - 1;
+			SCCs.get(SCCs.size() - 1).add(stack.pop());
+		}
+
+	}
+
+}
