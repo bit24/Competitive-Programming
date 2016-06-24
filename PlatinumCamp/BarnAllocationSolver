@@ -1,0 +1,169 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class BarnAllocationSolver {
+
+	public static void main(String[] args) throws IOException {
+		new BarnAllocationSolver().execute();
+	}
+
+	public void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		int numPositions = Integer.parseInt(inputData.nextToken());
+		int numQueries = Integer.parseInt(inputData.nextToken());
+
+		int[] value = new int[numPositions];
+		for (int i = 0; i < numPositions; i++) {
+			value[i] = Integer.parseInt(reader.readLine());
+		}
+
+		LazyPropagationSegmentTree tree = new LazyPropagationSegmentTree(new Function(), value);
+
+		Range[] ranges = new Range[numQueries];
+		for (int i = 0; i < numQueries; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			Range currentRange = new Range(Integer.parseInt(inputData.nextToken()) - 1,
+					Integer.parseInt(inputData.nextToken()) - 1);
+			ranges[i] = currentRange;
+		}
+
+		Arrays.sort(ranges);
+
+		int count = 0;
+		for (Range i : ranges) {
+			if (tree.query(i.a, i.b + 1) > 0) {
+				count++;
+				tree.incrementRange(i.a, i.b + 1, -1);
+			}
+		}
+		System.out.println(count);
+
+	}
+
+	class Range implements Comparable<Range> {
+		int a;
+		int b;
+
+		Range(int a, int b) {
+			this.a = a;
+			this.b = b;
+		}
+
+		public int compareTo(Range other) {
+			return Integer.compare(this.b, other.b);
+		}
+	}
+
+	class Function implements FunctionHolder {
+
+		public int function(int a, int b) {
+			return Math.min(a, b);
+		}
+
+	}
+
+	class LazyPropagationSegmentTree {
+
+		int size;
+		int[] elements;
+		int[] toUpdate;
+		int height;
+
+		FunctionHolder operator;
+
+		public void updateVertex(int vertex, int value) {
+			elements[vertex] += value;
+
+			// has children
+			if (vertex < size) {
+				toUpdate[vertex] += value;
+			}
+		}
+
+		public void pushUpdates(int root) {
+			for (int currentHeight = height; currentHeight > 0; currentHeight--) {
+				int index = root >> currentHeight;
+				if (toUpdate[index] != 0) {
+					updateVertex(index << 1, toUpdate[index]);
+					updateVertex(index << 1 | 1, toUpdate[index]);
+					toUpdate[index] = 0;
+				}
+			}
+		}
+
+		public void recalculateInternalVertices(int descendant) {
+			while (descendant > 0) {
+				descendant >>= 1;
+				elements[descendant] = operator.function(elements[descendant << 1], elements[descendant << 1 | 1])
+						+ toUpdate[descendant];
+			}
+		}
+
+		public void incrementRange(int left, int right, int value) {
+			left += size;
+			right += size;
+
+			for (int currentLeft = left, currentRight = right; currentLeft < currentRight; currentLeft >>= 1, currentRight >>= 1) {
+				if ((currentLeft & 1) != 0) {
+					updateVertex(currentLeft++, value);
+				}
+				if ((currentRight & 1) != 0) {
+					updateVertex(--currentRight, value);
+				}
+			}
+			recalculateInternalVertices(left);
+			recalculateInternalVertices(right - 1);
+		}
+
+		// left inclusive, right exclusive
+		public int query(int left, int right) {
+			left += size;
+			right += size;
+			pushUpdates(left);
+			pushUpdates(right - 1);
+
+			int ans = Integer.MAX_VALUE;
+			for (; left < right; left >>= 1, right >>= 1) {
+				if ((left & 1) != 0) {
+					ans = operator.function(ans, elements[left++]);
+				}
+				// because right exclusive
+				if ((right & 1) != 0) {
+					ans = operator.function(ans, elements[--right]);
+				}
+			}
+			return ans;
+		}
+
+		LazyPropagationSegmentTree(FunctionHolder operator, int[] input) {
+			this.operator = operator;
+			if (input.length > Integer.highestOneBit(input.length)) {
+				size = Integer.highestOneBit(input.length) << 1;
+			} else {
+				size = Integer.highestOneBit(input.length);
+			}
+
+			for (int i = size; i != 0; i >>= 1, height++) {
+			}
+
+			elements = new int[size * 2];
+			toUpdate = new int[size * 2];
+
+			for (int i = 0; i < input.length; i++) {
+				elements[i + size] = input[i];
+			}
+			for (int i = size - 1; i > 0; i--) {
+				elements[i] = operator.function(elements[i << 1], elements[i << 1 | 1]);
+			}
+		}
+	}
+
+	interface FunctionHolder {
+		public int function(int a, int b);
+	}
+
+}
