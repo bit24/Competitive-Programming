@@ -1,0 +1,111 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class TheFewestCoinsSolver {
+
+	static int numInitialCoins;
+	static int transactionValue;
+
+	static int[] initialCoinValues;
+	static int[] initialCoinAmounts;
+
+	static ArrayList<Integer> coinValues = new ArrayList<Integer>();
+	static ArrayList<Integer> coinWeight = new ArrayList<Integer>();
+
+	public static void input() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numInitialCoins = Integer.parseInt(inputData.nextToken());
+		transactionValue = Integer.parseInt(inputData.nextToken());
+
+		initialCoinValues = new int[numInitialCoins];
+		inputData = new StringTokenizer(reader.readLine());
+		for (int i = 0; i < numInitialCoins; i++) {
+			initialCoinValues[i] = Integer.parseInt(inputData.nextToken());
+		}
+
+		initialCoinAmounts = new int[numInitialCoins];
+		inputData = new StringTokenizer(reader.readLine());
+		for (int i = 0; i < numInitialCoins; i++) {
+			initialCoinAmounts[i] = Integer.parseInt(inputData.nextToken());
+		}
+	}
+
+	public static void splitInitialCoins() {
+		for (int index = 0; index < numInitialCoins; index++) {
+			int baseCoinValue = initialCoinValues[index];
+			int amount = initialCoinAmounts[index];
+
+			int totalValueLeft = baseCoinValue * amount;
+
+			int next = baseCoinValue;
+			int multiple = 1;
+
+			while (totalValueLeft > next) {
+				totalValueLeft -= next;
+				coinValues.add(next);
+				next *= 2;
+				coinWeight.add(multiple);
+				multiple *= 2;
+			}
+			coinValues.add(totalValueLeft);
+			coinWeight.add(totalValueLeft / baseCoinValue);
+		}
+	}
+
+	static int[] numCoinsU;
+
+	public static void UnboundKnapsack() {
+		numCoinsU = new int[transactionValue + 10000];
+		Arrays.fill(numCoinsU, Integer.MAX_VALUE / 4);
+		numCoinsU[0] = 0;
+
+		for (int i = 1; i < transactionValue + 10000; i++) {
+			int minValue = Integer.MAX_VALUE / 4;
+			for (int j = 0; j < numInitialCoins; j++) {
+				if (i - initialCoinValues[j] >= 0) {
+					minValue = Math.min(minValue, numCoinsU[i - initialCoinValues[j]] + 1);
+				}
+			}
+			numCoinsU[i] = minValue;
+		}
+	}
+
+	static int[] numCoinsR;
+
+	public static void Knapsack01() {
+		numCoinsR = new int[transactionValue + 10000];
+		Arrays.fill(numCoinsR, Integer.MAX_VALUE / 4);
+		numCoinsR[0] = 0;
+
+		for (int currentCoin = 0; currentCoin < coinValues.size(); currentCoin++) {
+			for (int currentValue = transactionValue + 10000 - 1; currentValue >= 1; currentValue--) {
+				if (currentValue - coinValues.get(currentCoin) >= 0) {
+					numCoinsR[currentValue] = Math.min(numCoinsR[currentValue],
+							numCoinsR[currentValue - coinValues.get(currentCoin)] + coinWeight.get(currentCoin));
+				}
+			}
+		}
+
+	}
+
+	public static void main(String[] args) throws IOException {
+		input();
+		splitInitialCoins();
+		UnboundKnapsack();
+		Knapsack01();
+
+		int answer = Integer.MAX_VALUE / 4;
+		for (int i = transactionValue; i < transactionValue + 10000; i++) {
+			answer = Math.min(answer, numCoinsR[i] + numCoinsU[i - transactionValue]);
+		}
+		if (answer == Integer.MAX_VALUE / 4) {
+			answer = -1;
+		}
+		System.out.println(answer);
+	}
+}
