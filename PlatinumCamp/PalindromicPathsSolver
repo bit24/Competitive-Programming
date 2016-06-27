@@ -6,7 +6,7 @@ public class PalindromicPathsSolver {
 
 	static int length;
 	static char[][] elements;
-	static final long modulo = 1000000007L;
+	static final int modulo = 1000000007;
 
 	public static void main(String[] args) throws IOException {
 		new PalindromicPathsSolver().execute();
@@ -31,20 +31,20 @@ public class PalindromicPathsSolver {
 			}
 		}
 
-		long[][] currentStates = new long[length][length];
+		int[][] currentStates = new int[length][length];
 
 		for (int i = 0; i < length; i++) {
 			currentStates[i][i] = 1;
 		}
 
 		for (int diagonalSize = length; diagonalSize >= 2; diagonalSize--) {
-			long[][] nextStates = new long[length][length];
+			int[][] nextStates = new int[length][length];
 			int newLeftDiagonal = diagonalSize - 2;
 			int newRightDiagonal = (length - 1) + (length - diagonalSize) + 1;
 
 			for (int leftPosition = 0; leftPosition < diagonalSize; leftPosition++) {
 				for (int rightPosition = 0; rightPosition < diagonalSize; rightPosition++) {
-					long numWaysCurrentState = currentStates[leftPosition][rightPosition];
+					int numWaysCurrentState = (currentStates[leftPosition][rightPosition] %= modulo);
 					if (numWaysCurrentState == 0) {
 						continue;
 					}
@@ -53,10 +53,18 @@ public class PalindromicPathsSolver {
 						if (rightPosition - 1 >= 0 && elements[newLeftDiagonal][leftPosition
 								- 1] == elements[newRightDiagonal][rightPosition - 1]) {
 							nextStates[leftPosition - 1][rightPosition - 1] += numWaysCurrentState;
+							
+							if(nextStates[leftPosition - 1][rightPosition - 1] >= modulo){
+								nextStates[leftPosition - 1][rightPosition - 1] %= modulo;
+							}
 						}
 						if (rightPosition < diagonalSize - 1 && elements[newLeftDiagonal][leftPosition
 								- 1] == elements[newRightDiagonal][rightPosition]) {
 							nextStates[leftPosition - 1][rightPosition] += numWaysCurrentState;
+							
+							if(nextStates[leftPosition - 1][rightPosition] >= modulo){
+								nextStates[leftPosition - 1][rightPosition] %= modulo;
+							}
 						}
 					}
 					if (leftPosition < diagonalSize - 1) {
@@ -64,17 +72,24 @@ public class PalindromicPathsSolver {
 								&& elements[newLeftDiagonal][leftPosition] == elements[newRightDiagonal][rightPosition
 										- 1]) {
 							nextStates[leftPosition][rightPosition - 1] += numWaysCurrentState;
+							
+							if(nextStates[leftPosition][rightPosition - 1] >= modulo){
+								nextStates[leftPosition][rightPosition - 1] %= modulo;
+							}
 						}
 						if (rightPosition < diagonalSize - 1
 								&& elements[newLeftDiagonal][leftPosition] == elements[newRightDiagonal][rightPosition]) {
 							nextStates[leftPosition][rightPosition] += numWaysCurrentState;
+							
+							if(nextStates[leftPosition][rightPosition] >= modulo){
+								nextStates[leftPosition][rightPosition] %= modulo;
+							}
 						}
 					}
 				}
 			}
 			currentStates = nextStates;
 		}
-		System.out.println(currentStates[0][0]);
+		System.out.println(currentStates[0][0] % modulo);
 	}
-
 }
