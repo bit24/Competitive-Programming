@@ -1,0 +1,72 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class MoovieMoovingSolver {
+
+	static int numOptions;
+	static int totalDuration;
+
+	static int[] duration;
+	static int[][] startTime;
+	static int[][] endTime;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numOptions = Integer.parseInt(inputData.nextToken());
+		totalDuration = Integer.parseInt(inputData.nextToken());
+		duration = new int[numOptions];
+		startTime = new int[numOptions][];
+		endTime = new int[numOptions][];
+
+		for (int i = 0; i < numOptions; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			duration[i] = Integer.parseInt(inputData.nextToken());
+			int numScreenings = Integer.parseInt(inputData.nextToken());
+			startTime[i] = new int[numScreenings];
+			endTime[i] = new int[numScreenings];
+
+			for (int j = 0; j < numScreenings; j++) {
+				startTime[i][j] = Integer.parseInt(inputData.nextToken());
+				endTime[i][j] = startTime[i][j] + duration[i];
+			}
+		}
+
+		int ans = Integer.MAX_VALUE;
+
+		int endCondition = 1 << numOptions;
+
+		int[] combinedDuration = new int[endCondition];
+
+		for (int optionSet = 0; optionSet < endCondition; optionSet++) {
+			if (combinedDuration[optionSet] >= totalDuration) {
+				ans = Math.min(ans, Integer.bitCount(optionSet));
+			}
+
+			for (int currentOption = 0; currentOption < numOptions; currentOption++) {
+				if ((optionSet & (1 << currentOption)) == 0) {
+					int screeningNumber = Arrays.binarySearch(startTime[currentOption], combinedDuration[optionSet]);
+					if (screeningNumber < 0) {
+						screeningNumber = screeningNumber * -1 - 1;
+						screeningNumber -= 1;
+						if (screeningNumber < 0) {
+							continue;
+						}
+					}
+					int newSet = optionSet ^ (1 << currentOption);
+					combinedDuration[newSet] = Math.max(combinedDuration[newSet],
+							endTime[currentOption][screeningNumber]);
+				}
+			}
+		}
+		if (ans == Integer.MAX_VALUE) {
+			System.out.println(-1);
+		} else {
+			System.out.println(ans);
+		}
+	}
+
+}
