@@ -1,0 +1,106 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class RouteDesigningSolver {
+
+	static int numLeft;
+	static int numRight;
+	static int numTransitions;
+
+	static int[] leftValues;
+	static int[] rightValues;
+	static Pair[] transitions;
+
+	static int[] leftCumulativeValues;
+	static int[] rightCumulativeValues;
+
+	class Pair implements Comparable<Pair> {
+		int a;
+		int b;
+
+		Pair(int a, int b) {
+			this.a = a;
+			this.b = b;
+		}
+
+		public int compareTo(Pair other) {
+			int comparisonResult = Integer.compare(a, other.a);
+			if (comparisonResult == 0) {
+				comparisonResult = Integer.compare(b, other.b);
+			}
+			return comparisonResult;
+		}
+	}
+
+	public void input() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numLeft = Integer.parseInt(inputData.nextToken());
+		numRight = Integer.parseInt(inputData.nextToken());
+		numTransitions = Integer.parseInt(inputData.nextToken());
+
+		leftValues = new int[numLeft];
+		rightValues = new int[numRight];
+		transitions = new Pair[numTransitions];
+
+		for (int i = 0; i < numLeft; i++) {
+			leftValues[i] = Integer.parseInt(reader.readLine());
+		}
+		for (int i = 0; i < numRight; i++) {
+			rightValues[i] = Integer.parseInt(reader.readLine());
+		}
+		for (int i = 0; i < numTransitions; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			transitions[i] = new Pair(Integer.parseInt(inputData.nextToken()) - 1,
+					Integer.parseInt(inputData.nextToken()) - 1);
+		}
+		Arrays.sort(transitions);
+
+		leftCumulativeValues = new int[numLeft];
+		rightCumulativeValues = new int[numRight];
+		for (int i = 0; i < numLeft; i++) {
+			leftCumulativeValues[i] = leftValues[i];
+		}
+		for (int i = 0; i < numRight; i++) {
+			rightCumulativeValues[i] = rightValues[i];
+		}
+	}
+
+	public void calculateValues() {
+		for (Pair transition : transitions) {
+			int a = transition.a;
+			int b = transition.b;
+
+			int currentLeftCumulativeValue = leftCumulativeValues[a];
+			int currentRightCumulativeValue = rightCumulativeValues[b];
+
+			leftCumulativeValues[a] = Math.max(leftCumulativeValues[a], currentRightCumulativeValue + leftValues[a]);
+			rightCumulativeValues[b] = Math.max(rightCumulativeValues[b], currentLeftCumulativeValue + rightValues[b]);
+		}
+	}
+
+	public int findMax() {
+		int ans = 0;
+		for (int i = 0; i < numLeft; i++) {
+			ans = Math.max(ans, leftCumulativeValues[i]);
+		}
+		for (int i = 0; i < numRight; i++) {
+			ans = Math.max(ans, rightCumulativeValues[i]);
+		}
+		return ans;
+	}
+
+	public void execute() throws IOException {
+		input();
+		calculateValues();
+		System.out.println(findMax());
+	}
+
+	public static void main(String[] args) throws IOException {
+		new RouteDesigningSolver().execute();
+	}
+
+}
