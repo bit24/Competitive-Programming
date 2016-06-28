@@ -1,0 +1,152 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+
+public class CoveringTheCoralSolver {
+
+	public static void main(String[] args) throws IOException {
+		new CoveringTheCoralSolver().execute();
+	}
+
+	int circumference;
+	int numSegments;
+	Segment[] segments;
+
+	public void init() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		circumference = Integer.parseInt(inputData.nextToken());
+		numSegments = Integer.parseInt(inputData.nextToken());
+		segments = new Segment[numSegments];
+
+		for (int i = 0; i < numSegments; i++) {
+			inputData = new StringTokenizer(reader.readLine());
+			segments[i] = new Segment(Integer.parseInt(inputData.nextToken()), Integer.parseInt(inputData.nextToken()));
+		}
+	}
+
+	public void removeEnvelopedSegments() {
+		Arrays.sort(segments, new CompareByStart());
+
+		ArrayList<Segment> newSegments = new ArrayList<Segment>();
+
+		for (int i = 0; i < numSegments; i++) {
+			if (newSegments.isEmpty()
+					|| segments[i].start + segments[i].length > newSegments.get(newSegments.size() - 1).length) {
+				newSegments.add(segments[i]);
+			}
+		}
+
+		segments = newSegments.toArray(new Segment[0]);
+		numSegments = segments.length;
+	}
+
+	int[][] next;
+
+	public void computeNext0() {
+		next = new int[numSegments][17];
+		int right = 0;
+		for (int index = 0; index < numSegments; index++) {
+			while (touchesRight(index, (right + 1) % numSegments)) {
+				right = (right + 1) % numSegments;
+			}
+			next[index][0] = right;
+		}
+	}
+
+	public boolean touchesRight(int left, int right) {
+		if (segments[left].start + segments[left].length < circumference) {
+			if (segments[right].start < segments[left].start) {
+				return false;
+			} else {
+				return segments[right].start <= segments[left].start + segments[left].length;
+			}
+		} else {
+			if (segments[right].start > segments[left].start) {
+				return true;
+			} else {
+				return (segments[left].start + segments[left].length) % circumference >= segments[right].start;
+			}
+		}
+	}
+
+	public void computeBinaryJumpReferences() {
+		for (int k = 0; k < 16; k++) {
+			for (int currentSegment = 0; currentSegment < numSegments; currentSegment++) {
+				int currentNext = next[currentSegment][k];
+				if (currentNext == -1) {
+					next[currentSegment][k + 1] = -1;
+				} else {
+					int currentNextNext = next[currentNext][k];
+					if (currentNextNext == -1 || isBetween(currentSegment, currentNextNext, currentNext)) {
+						next[currentSegment][k + 1] = -1;
+					} else {
+						next[currentSegment][k + 1] = currentNextNext;
+					}
+				}
+			}
+		}
+	}
+
+	static int ans;
+
+	public boolean isBetween(int a, int b, int c) {
+		if (segments[a].start <= segments[c].start) {
+			return segments[a].start <= segments[b].start && segments[b].start <= segments[c].start;
+		} else {
+			return a <= b || b <= c;
+		}
+	}
+
+	public void binarySearch() {
+		ans = numSegments + 1;
+
+		for (int currentSegment = 0; currentSegment < numSegments; currentSegment++) {
+			int currentSearchSegment = next[currentSegment][0];
+			int segmentCount = 2;
+
+			for (int k = 16; k >= 0; k--) {
+				if (next[currentSearchSegment][k] != -1
+						&& !isBetween(currentSearchSegment, currentSegment, next[currentSearchSegment][k])) {
+					currentSearchSegment = next[currentSearchSegment][k];
+					segmentCount += (1 << k);
+				}
+			}
+			ans = Math.min(ans, segmentCount);
+		}
+	}
+
+	public void execute() throws IOException {
+		init();
+		removeEnvelopedSegments();
+		computeNext0();
+		computeBinaryJumpReferences();
+		binarySearch();
+		System.out.println(ans);
+	}
+
+	class Segment {
+		int start;
+		int length;
+
+		Segment(int a, int b) {
+			start = a;
+			length = b;
+		}
+	}
+
+	class CompareByStart implements Comparator<Segment> {
+		public int compare(Segment o1, Segment o2) {
+			int comparisonResult = Integer.compare(o1.start, o2.start);
+			if (comparisonResult == 0) {
+				comparisonResult = -Integer.compare(o1.length, o2.length);
+			}
+			return comparisonResult;
+		}
+	}
+
+}
