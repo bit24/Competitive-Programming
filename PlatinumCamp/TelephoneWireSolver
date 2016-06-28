@@ -1,0 +1,78 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class TelephoneWireSolver {
+
+	static int numElements;
+	static int heightDifferencePenalty;
+
+	static int[] height;
+
+	public static void input() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		numElements = Integer.parseInt(inputData.nextToken());
+		heightDifferencePenalty = Integer.parseInt(inputData.nextToken());
+
+		height = new int[numElements + 1];
+		for (int i = 1; i <= numElements; i++) {
+			height[i] = Integer.parseInt(reader.readLine());
+		}
+
+	}
+
+	public static void main(String[] args) throws IOException {
+		input();
+
+		int maxHeight = 0;
+		for (int i : height) {
+			maxHeight = Math.max(maxHeight, i);
+		}
+
+		int[] currentDP = new int[maxHeight + 1];
+
+		Arrays.fill(currentDP, Integer.MAX_VALUE / 4);
+		for (int i = height[1]; i <= maxHeight; i++) {
+			currentDP[i] = (int) Math.pow(Math.abs(height[1] - i), 2);
+		}
+
+		for (int i = 2; i <= numElements; i++) {
+			int[] prefixMin = new int[maxHeight + 1];
+			int[] suffixMin = new int[maxHeight + 1];
+			Arrays.fill(prefixMin, Integer.MAX_VALUE / 4);
+			Arrays.fill(suffixMin, Integer.MAX_VALUE / 4);
+
+			prefixMin[0] = currentDP[0];
+			for (int previousHeight = 1; previousHeight <= maxHeight; previousHeight++) {
+				prefixMin[previousHeight] = Math.min(prefixMin[previousHeight - 1],
+						currentDP[previousHeight] - heightDifferencePenalty * previousHeight);
+			}
+
+			suffixMin[maxHeight] = currentDP[maxHeight] + heightDifferencePenalty * maxHeight;
+			for (int previousHeight = maxHeight - 1; previousHeight >= 0; previousHeight--) {
+				suffixMin[previousHeight] = Math.min(suffixMin[previousHeight + 1],
+						currentDP[previousHeight] + heightDifferencePenalty * previousHeight);
+			}
+
+			Arrays.fill(currentDP, Integer.MAX_VALUE / 4);
+
+			for (int currentHeight = height[i]; currentHeight <= maxHeight; currentHeight++) {
+				int squareClause = (height[i] - currentHeight) * (height[i] - currentHeight);
+
+				currentDP[currentHeight] = squareClause
+						+ Math.min(heightDifferencePenalty * currentHeight + prefixMin[currentHeight],
+								-heightDifferencePenalty * currentHeight + suffixMin[currentHeight]);
+
+			}
+		}
+		int ans = Integer.MAX_VALUE / 4;
+		for (int i = 0; i <= maxHeight; i++) {
+			ans = Math.min(ans, currentDP[i]);
+		}
+		System.out.println(ans);
+	}
+
+}
