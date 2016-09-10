@@ -45,27 +45,16 @@ public class hidden {
 
 		ArrayList<Integer> evaluatingSet = new ArrayList<Integer>();
 
-		char cBestChar = '~';
 		for (int i = 0; i < length; i++) {
-			if (charSequence[i] < cBestChar) {
-				evaluatingSet.clear();
-				cBestChar = charSequence[i];
-				evaluatingSet.add(i);
-			} else if (charSequence[i] == cBestChar) {
-				evaluatingSet.add(i);
-			}
-		}
-
-		for (int i : evaluatingSet) {
-			bestDLength[i] = 1;
+			evaluatingSet.add(i);
 		}
 
 		ArrayList<Integer> nSet = new ArrayList<Integer>();
 
-		int guaranteedBest = 1;
+		int guaranteedBest = 0;
 		while (guaranteedBest < length) {
 			int cBestLength = 0;
-			cBestChar = '~';
+			char cBestChar = '~';
 
 			if (evaluatingSet.size() == 1) {
 				return evaluatingSet.get(0);
