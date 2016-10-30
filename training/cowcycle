@@ -1,0 +1,139 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+/*ID: eric.ca1
+LANG: JAVA
+TASK: cowcycle
+*/
+
+public class cowcycle {
+
+	static int[] num = new int[2];
+
+	static int[] min = new int[2];
+	static int[] max = new int[2];
+
+	public static void main(String[] args) throws IOException {
+
+		BufferedReader reader = new BufferedReader(new FileReader("cowcycle.in"));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		num[AFIELD] = Integer.parseInt(inputData.nextToken());
+		num[BFIELD] = Integer.parseInt(inputData.nextToken());
+
+		inputData = new StringTokenizer(reader.readLine());
+		min[AFIELD] = Integer.parseInt(inputData.nextToken());
+		max[AFIELD] = Integer.parseInt(inputData.nextToken());
+		min[BFIELD] = Integer.parseInt(inputData.nextToken());
+		max[BFIELD] = Integer.parseInt(inputData.nextToken());
+		reader.close();
+
+		minSelection = new int[2][];
+		minSelection[AFIELD] = new int[num[AFIELD]];
+		minSelection[BFIELD] = new int[num[BFIELD]];
+
+		int[][] cSelection = new int[2][];
+		cSelection[AFIELD] = new int[num[AFIELD]];
+		cSelection[BFIELD] = new int[num[BFIELD]];
+
+		//System.out.println(computeVariance(new int[][] { new int[] { 39, 53 }, new int[] { 12, 13, 15, 23, 27 } }));
+
+		explore(cSelection, 0, min[AFIELD], AFIELD);
+
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("cowcycle.out")));
+
+		printer.print(minSelection[AFIELD][0]);
+		for (int i = 1; i < num[AFIELD]; i++) {
+			printer.print(" " + minSelection[AFIELD][i]);
+		}
+		printer.println();
+
+		printer.print(minSelection[BFIELD][0]);
+		for (int i = 1; i < num[BFIELD]; i++) {
+			printer.print(" " + minSelection[BFIELD][i]);
+		}
+		printer.println();
+		printer.close();
+
+	}
+
+	final static int AFIELD = 0;
+	final static int BFIELD = 1;
+
+	static double minVariance = Double.POSITIVE_INFINITY;
+	static int[][] minSelection;
+
+	static void explore(int[][] selection, int cSelected, int index, int field) {
+
+		if (index > max[field]) {
+			return;
+		}
+
+		selection[field][cSelected] = index;
+		if (field == AFIELD && cSelected + 1 == num[AFIELD]) {
+			explore(selection, 0, min[BFIELD], BFIELD);
+		} else if (field == BFIELD && cSelected + 1 == num[BFIELD]) {
+			updateMin(selection);
+		} else {
+			explore(selection, cSelected + 1, index + 1, field);
+		}
+
+		explore(selection, cSelected, index + 1, field);
+	}
+
+	static void updateMin(int[][] selection) {
+		if (3 * (((double) selection[AFIELD][0])
+				/ selection[BFIELD][num[BFIELD] - 1]) > ((double) selection[AFIELD][num[AFIELD] - 1])
+						/ selection[BFIELD][0]) {
+			return;
+		}
+
+		double variance = computeVariance(selection);
+		if (variance < minVariance) {
+			//System.out.println(3 * (((double) selection[AFIELD][0]) / selection[BFIELD][num[BFIELD] - 1]));
+			//System.out.println(((double) selection[AFIELD][num[AFIELD] - 1]) / selection[BFIELD][0]);
+			minVariance = variance;
+			for (int field = 0; field < 2; field++) {
+				for (int i = 0; i < num[field]; i++) {
+					minSelection[field][i] = selection[field][i];
+				}
+			}
+		}
+	}
+
+	static double computeVariance(int[][] selection) {
+		double[] values = new double[num[AFIELD] * num[BFIELD]];
+		int vIndex = 0;
+
+		for (int i = 0; i < num[AFIELD]; i++) {
+			for (int j = 0; j < num[BFIELD]; j++) {
+				values[vIndex++] = (double) (selection[AFIELD][i]) / selection[BFIELD][j];
+			}
+		}
+		Arrays.sort(values);
+
+		double[] differences = new double[values.length - 1];
+		double sum = 0;
+
+		for (int i = 0; i + 1 < values.length; i++) {
+			double difference = values[i + 1] - values[i];
+			sum += difference;
+
+			differences[i] = difference;
+		}
+
+		double mean = sum / differences.length;
+		double cost = 0;
+		for (int i = 0; i < differences.length; i++) {
+			double subValue = differences[i] - mean;
+			cost += subValue * subValue;
+		}
+		return cost / differences.length;
+	}
+
+}
