@@ -1,0 +1,193 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+/*ID: eric.ca1
+LANG: JAVA
+TASK: fence3
+*/
+
+public class fence3 {
+
+	public static void main(String[] args) throws IOException {
+		new fence3().execute();
+	}
+
+	public void execute() throws IOException {
+		input();
+		broadSearch();
+		Result bestResult = preciseSearch();
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("fence3.out")));
+		printer.println(bestResult.x + " " + bestResult.y + " " + new DecimalFormat("0.0").format(bestResult.cost));
+		printer.close();
+	}
+
+	int numSegments;
+
+	boolean[] direction;
+	int[] pIndex;
+	int[] sIndex1;
+	int[] sIndex2;
+
+	final boolean VERTICAL = true;
+	final boolean HORIZONTAL = false;
+
+	int maxX;
+	int maxY;
+	int minX;
+	int minY;
+
+	public void input() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader("fence3.in"));
+		numSegments = Integer.parseInt(reader.readLine());
+		pIndex = new int[numSegments];
+		sIndex1 = new int[numSegments];
+		sIndex2 = new int[numSegments];
+		direction = new boolean[numSegments];
+
+		for (int i = 0; i < numSegments; i++) {
+			StringTokenizer inputData = new StringTokenizer(reader.readLine());
+			int x1 = Integer.parseInt(inputData.nextToken());
+			int y1 = Integer.parseInt(inputData.nextToken());
+			int x2 = Integer.parseInt(inputData.nextToken());
+			int y2 = Integer.parseInt(inputData.nextToken());
+
+			if (x1 == x2) {
+				direction[i] = VERTICAL;
+				pIndex[i] = x1;
+				sIndex1[i] = Math.min(y1, y2);
+				sIndex2[i] = Math.max(y1, y2);
+				if (maxX < x1) {
+					maxX = x1;
+				}
+				if (x1 < minX) {
+					minX = x1;
+				}
+				if (sIndex1[i] < minY) {
+					minY = sIndex1[i];
+				}
+				if (maxY < sIndex2[i]) {
+					maxY = sIndex2[i];
+				}
+			} else {
+				assert (y1 == y2);
+				direction[i] = HORIZONTAL;
+				pIndex[i] = y1;
+				sIndex1[i] = Math.min(x1, x2);
+				sIndex2[i] = Math.max(x1, x2);
+				if (maxY < y1) {
+					maxY = y1;
+				}
+				if (y1 < minY) {
+					minY = y1;
+				}
+				if (sIndex1[i] < minX) {
+					minX = sIndex1[i];
+				}
+				if (maxX < sIndex2[i]) {
+					maxX = sIndex2[i];
+				}
+			}
+		}
+		reader.close();
+	}
+
+	Result[] broadResults;
+	int numBroad = 0;
+
+	public void broadSearch() {
+		numBroad = (maxX - minX + 1) * (maxY - minY + 1);
+		broadResults = new Result[numBroad];
+		int resultCount = 0;
+		for (int x = minX; x <= maxX; x++) {
+			for (int y = minY; y <= maxY; y++) {
+				double sum = computeTotalCost(x, y);
+				broadResults[resultCount++] = new Result(sum, x, y);
+			}
+		}
+		Arrays.sort(broadResults);
+	}
+
+	public Result preciseSearch() {
+		Result bestResult = broadResults[0];
+
+		double currentMin = broadResults[0].cost;
+		double tolerance = numSegments;
+
+		for (int bIndex = 0; bIndex < numBroad && broadResults[bIndex].cost - currentMin <= tolerance; bIndex++) {
+
+			for (double xMod = -0.5; xMod <= 0.5; xMod += 0.1) {
+				for (double yMod = -0.5; yMod <= 0.5; yMod += 0.1) {
+					double newX = broadResults[bIndex].x + xMod;
+					double newY = broadResults[bIndex].y + yMod;
+
+					double sum = computeTotalCost(newX, newY);
+					if (sum < currentMin) {
+						bestResult = new Result(sum, newX, newY);
+						currentMin = sum;
+					}
+				}
+			}
+		}
+		return bestResult;
+	}
+
+	class Result implements Comparable<Result> {
+		double cost;
+		double x;
+		double y;
+
+		Result(double cost, double x, double y) {
+			this.cost = cost;
+			this.x = x;
+			this.y = y;
+		}
+
+		public int compareTo(Result o) {
+			if (cost != o.cost) {
+				return cost < o.cost ? -1 : 1;
+			}
+			if (x != o.x) {
+				return x < o.x ? -1 : 1;
+			}
+			return Double.compare(y, o.y);
+		}
+	}
+
+	double computeTotalCost(double pX, double pY) {
+		double sum = 0;
+		for (int i = 0; i < numSegments; i++) {
+			sum += computeDistance(pX, pY, i);
+		}
+		return sum;
+	}
+
+	double computeDistance(double pX, double pY, int sIndex) {
+		if (direction[sIndex] == VERTICAL) {
+			double leg1 = Math.abs(pIndex[sIndex] - pX);
+			double leg2 = 0;
+			if (pY < sIndex1[sIndex]) {
+				leg2 = sIndex1[sIndex] - pY;
+			} else if (sIndex2[sIndex] < pY) {
+				leg2 = pY - sIndex2[sIndex];
+			}
+			return Math.sqrt(leg1 * leg1 + leg2 * leg2);
+		} else {
+			double leg1 = Math.abs(pIndex[sIndex] - pY);
+			double leg2 = 0;
+			if (pX < sIndex1[sIndex]) {
+				leg2 = sIndex1[sIndex] - pX;
+			} else if (sIndex2[sIndex] < pX) {
+				leg2 = pX - sIndex2[sIndex];
+			}
+			return Math.sqrt(leg1 * leg1 + leg2 * leg2);
+		}
+	}
+
+}
