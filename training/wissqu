@@ -1,0 +1,152 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/*ID: eric.ca1
+LANG: JAVA
+TASK: wissqu
+*/
+
+public class wissqu {
+
+	public static void main(String[] args) throws IOException {
+		new wissqu().execute();
+	}
+
+	void execute() throws IOException {
+		input();
+		SearchResult finalResult = hintSearch();
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("wissqu.out")));
+
+		String bestSequence = finalResult.sequence;
+		for (int i = 0; i < bestSequence.length(); i += 3) {
+			printer.println(
+					bestSequence.charAt(i) + " " + bestSequence.charAt(i + 1) + " " + bestSequence.charAt(i + 2));
+		}
+		printer.println(finalResult.count);
+		printer.close();
+	}
+
+	void input() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader("wissqu.in"));
+		for (int i = 0; i < 4; i++) {
+			String line = reader.readLine();
+			for (int j = 0; j < 4; j++) {
+				cGrid[i][j] = line.charAt(j);
+			}
+		}
+		reader.close();
+		cRemaining = new int[] { 3, 3, 3, 4, 3 };
+	}
+
+	boolean[][] isNew = new boolean[4][4];
+	char[][] cGrid = new char[4][4];
+	int[] cRemaining = new int[4];
+
+	SearchResult hintSearch() {
+		String best = null;
+		int count = 0;
+
+		cRemaining[3]--;
+		for (int posI = 0; posI < 4; posI++) {
+			posLoop: for (int posJ = 0; posJ < 4; posJ++) {
+
+				for (int checkI = Math.max(0, posI - 1); checkI <= Math.min(posI + 1, 3); checkI++) {
+					for (int checkJ = Math.max(0, posJ - 1); checkJ <= Math.min(posJ + 1, 3); checkJ++) {
+						if (cGrid[checkI][checkJ] == 'D') {
+							continue posLoop;
+						}
+					}
+				}
+
+				char previous = cGrid[posI][posJ];
+				cGrid[posI][posJ] = 'D';
+				isNew[posI][posJ] = true;
+
+				SearchResult ssResult = search();
+				String newSequence = 'D' + "" + (posI + 1) + (posJ + 1) + ssResult.sequence;
+
+				if (best == null || newSequence.compareTo(best) < 0) {
+					best = newSequence;
+				}
+				count += ssResult.count;
+
+				cGrid[posI][posJ] = previous;
+				isNew[posI][posJ] = false;
+
+			}
+		}
+		cRemaining[3]++;
+		return new SearchResult(best, count);
+	}
+
+	SearchResult search() {
+		String best = null;
+		int count = 0;
+
+		boolean finished = true;
+		for (char cChar = 'A'; cChar <= 'E'; cChar++) {
+			if (cRemaining[cChar - 'A'] == 0) {
+				continue;
+			}
+			finished = false;
+			cRemaining[cChar - 'A']--;
+
+			for (int posI = 0; posI < 4; posI++) {
+				posLoop: for (int posJ = 0; posJ < 4; posJ++) {
+					if (isNew[posI][posJ]) {
+						continue;
+					}
+
+					for (int checkI = Math.max(0, posI - 1); checkI <= Math.min(posI + 1, 3); checkI++) {
+						for (int checkJ = Math.max(0, posJ - 1); checkJ <= Math.min(posJ + 1, 3); checkJ++) {
+							if (cGrid[checkI][checkJ] == cChar) {
+								continue posLoop;
+							}
+						}
+					}
+
+					// OK
+					char previous = cGrid[posI][posJ];
+					cGrid[posI][posJ] = cChar;
+					isNew[posI][posJ] = true;
+
+					SearchResult ssResult = search();
+					if (ssResult.sequence != null) {
+						String newSequence = cChar + "" + (posI + 1) + (posJ + 1) + ssResult.sequence;
+
+						if (best == null || newSequence.compareTo(best) < 0) {
+							best = newSequence;
+						}
+						count += ssResult.count;
+					}
+
+					cGrid[posI][posJ] = previous;
+					isNew[posI][posJ] = false;
+				}
+			}
+			cRemaining[cChar - 'A']++;
+
+		}
+		if (finished) {
+			return new SearchResult("", 1);
+		}
+
+		return new SearchResult(best, count);
+	}
+
+	class SearchResult {
+		String sequence;
+		int count;
+
+		SearchResult(String sequence, int count) {
+			this.sequence = sequence;
+			this.count = count;
+		}
+
+	}
+
+}
