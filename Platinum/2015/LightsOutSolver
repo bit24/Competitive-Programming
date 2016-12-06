@@ -38,8 +38,8 @@ public class LightsOutSolver {
 
 	int solution;
 
-	// use:[representation][strIndex][LEFT or Right]
-	int[][][] maxAdCost;
+	// use:[representation][LEFT or Right]
+	int[][] maxAdCost;
 
 	void execute() throws IOException {
 
@@ -78,12 +78,18 @@ public class LightsOutSolver {
 		computeBaseCost();
 		computeMap();
 		computeExtensions();
-		maxAdCost = new int[numP * numP][numP][2];
+		maxAdCost = new int[numP * numP][2];
 
 		computeCosts();
 
 		for (int start = 1; start < numP; start++) {
-			int cost = worstAdCost[map[start][start]][] - baseCost[start];
+			if(map[start][start] != numP*start + start){
+				continue;
+			}
+			int cost = maxAdCost[map[start][start]][0] - baseCost[start];
+			if (cost > solution) {
+				solution = cost;
+			}
 		}
 
 		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("lightsout.out")));
@@ -106,35 +112,31 @@ public class LightsOutSolver {
 
 				int crossover = preSum[right] - preSum[left];
 
-				for (int strLocation = 0; strLocation < numP; strLocation++) {
-					// int bestCost = baseCost[strLocation];
-
-					for (int side = 0; side < 2; side++) {
-						// min max decision
-						int maxLeft = 0;
-						for (int newRep : lExtension[rangeRep]) {
-							int cost = maxAdCost[newRep][strLocation][LEFT] + elements[wrapE(2 * left - 1)];
-							if (cost > maxLeft) {
-								maxLeft = cost;
-							}
+				for (int side = 0; side < 2; side++) {
+					// min max decision
+					int maxLeft = 0;
+					for (int newRep : lExtension[rangeRep]) {
+						int cost = maxAdCost[newRep][LEFT] + elements[wrapE(2 * left - 1)];
+						if (cost > maxLeft) {
+							maxLeft = cost;
 						}
-
-						int maxRight = 0;
-						for (int newRep : rExtension[rangeRep]) {
-							int cost = maxAdCost[newRep][strLocation][RIGHT] + elements[wrapE(2 * right + 1)];
-							if (cost > maxRight) {
-								maxRight = cost;
-							}
-						}
-
-						if (side == LEFT) {
-							maxRight += crossover;
-						} else {
-							maxLeft += crossover;
-						}
-
-						maxAdCost[rangeRep][strLocation][side] = Math.min(maxLeft, maxRight);
 					}
+
+					int maxRight = 0;
+					for (int newRep : rExtension[rangeRep]) {
+						int cost = maxAdCost[newRep][RIGHT] + elements[wrapE(2 * right + 1)];
+						if (cost > maxRight) {
+							maxRight = cost;
+						}
+					}
+
+					if (side == LEFT) {
+						maxRight += crossover;
+					} else {
+						maxLeft += crossover;
+					}
+
+					maxAdCost[rangeRep][side] = Math.min(maxLeft, maxRight);
 				}
 			}
 		}
