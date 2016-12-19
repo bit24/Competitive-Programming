@@ -60,10 +60,15 @@ public class CowLineupSolver {
 			if (currentCount > ans) {
 				ans = currentCount;
 			}
+			
+			count.put(elements[lI], count.get(elements[lI]) - 1);
+			if (count.get(elements[lI]) == 0) {
+				count.remove(elements[lI]);
+				tCount--;
+			}
 			lI++;
 		}
 
 		System.out.println(ans);
 	}
-
 }
