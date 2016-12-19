@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class CowFrisbeeTeam {
+public class CowFrisbeeTeamSolver {
 
 	static int modReq;
 
