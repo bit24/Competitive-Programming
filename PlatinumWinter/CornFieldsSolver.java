@@ -69,6 +69,7 @@ public class CornFieldsSolver {
 		int ans = 0;
 		for (int eState : validStates) {
 			ans += current[eState];
+			ans %= 100_000_000;
 		}
 		System.out.println(ans);
 	}
