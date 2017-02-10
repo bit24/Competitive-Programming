@@ -1,0 +1,137 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+
+public class Div2_395E {
+
+	public static void main(String[] args) throws IOException {
+		new Div2_395E().execute();
+	}
+
+	long MOD = 0;
+	int numE = 0;
+
+	long[] elements;
+
+	TreeSet<Long> mSet = new TreeSet<Long>();
+
+	String tExecute() {
+		for (int i = 0; i < numE; i++) {
+			mSet.add(elements[i]);
+		}
+
+		if (numE == 1) {
+			return elements[0] + " 1";
+		}
+
+		long sample = (elements[0] - elements[1] + MOD) % MOD;
+
+		int count = count(sample);
+
+		if (count == numE) {
+			// case where it forms a complete cycle
+			count--;
+		}
+
+		long difference = divide(sample, (numE - count));
+
+		long start = verify(difference);
+
+		if (start == -1) {
+			return "-1";
+		} else {
+			return start + " " + difference;
+		}
+	}
+
+	void execute() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+		StringTokenizer inputData = new StringTokenizer(reader.readLine());
+		MOD = Long.parseLong(inputData.nextToken());
+		numE = Integer.parseInt(inputData.nextToken());
+
+		inputData = new StringTokenizer(reader.readLine());
+		elements = new long[numE];
+		for (int i = 0; i < numE; i++) {
+			elements[i] = Long.parseLong(inputData.nextToken());
+			mSet.add(elements[i]);
+		}
+		reader.close();
+
+		if (numE == 1) {
+			printer.println(elements[0] + " 1");
+			printer.close();
+			return;
+		}
+
+		long sample = ((elements[0] - elements[1]) + MOD) % MOD;
+
+		int count = count(sample);
+
+		if (count == numE) {
+			// case where it forms a complete cycle
+			count--;
+		}
+
+		long difference = divide(sample, (numE - count));
+
+		long start = verify(difference);
+
+		if (start == -1) {
+			printer.println(-1);
+		} else {
+			printer.println(start + " " + difference);
+		}
+		printer.close();
+	}
+
+	int count(long difference) {
+		int count = 0;
+		for (long cE : elements) {
+			if (mSet.contains((cE + difference) % MOD)) {
+				System.out.println(cE + " " + (cE + difference) % MOD);
+				count++;
+			}
+		}
+		return count;
+	}
+
+	long verify(long difference) {
+		long begin = -1;
+		for (long current = elements[0] % MOD; mSet.contains(current); current = (current - difference + MOD) % MOD) {
+			mSet.remove(current);
+			begin = current;
+		}
+		for (long current = (elements[0] + difference) % MOD; mSet
+				.contains(current); current = (current + difference) % MOD) {
+			mSet.remove(current);
+		}
+		if (!mSet.isEmpty()) {
+			return -1;
+		}
+		return begin;
+	}
+
+	long divide(long dividend, long divisor) {
+		return ((dividend % MOD) * exponentiate(divisor % MOD, MOD - 2)) % MOD;
+	}
+
+	long exponentiate(long base, long exp) {
+		long current = 1;
+		long saved = base;
+		while (exp > 0) {
+			if ((exp & 1) == 1) {
+				current = (current * saved) % MOD;
+			}
+			exp >>= 1;
+			saved = (saved * saved) % MOD;
+		}
+		return current;
+	}
+}
