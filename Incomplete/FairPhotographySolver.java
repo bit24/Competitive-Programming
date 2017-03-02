@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
@@ -17,7 +17,7 @@ public class FairPhotographySolver {
 		System.out.println(System.currentTimeMillis() - startTime);
 	}
 
-	int numB = 8;
+	final int numB = 8;
 	int numE;
 	int numR;
 
@@ -45,20 +45,21 @@ public class FairPhotographySolver {
 			xVal[i] = input[i].k;
 		}
 
-		int[][] trPos = new int[numE + 2][numB];
+		// right exclusive, left inclusive
+		int[][] trPos = new int[numE + 1][numB];
 		int[][] tlPos = new int[numE + 1][numB];
 
-		// mark as impossible
+		// mark as non-existent
 		for (int b = 0; b < numB; b++) {
-			trPos[numE + 1][b] = numE + 1;
+			trPos[numE][b] = numE + 1;
 			tlPos[0][b] = 0;
 		}
 
-		for (int i = numE; i >= 1; i--) {
+		for (int i = numE - 1; i >= 0; i--) {
 			for (int b = 0; b < numB; b++) {
 				trPos[i][b] = trPos[i + 1][b];
 			}
-			trPos[i][breed[i]] = i;
+			trPos[i][breed[i + 1]] = i + 1;
 		}
 		for (int i = 1; i <= numE; i++) {
 			for (int b = 0; b < numB; b++) {
@@ -67,101 +68,127 @@ public class FairPhotographySolver {
 			tlPos[i][breed[i]] = i;
 		}
 
-		TreeMap<State, Integer> states = new TreeMap<State, Integer>();
+		TreeMap<int[], Integer> states = new TreeMap<int[], Integer>(sortFunc);
 
 		int[] count = new int[numB + 1];
-		for (int r = 1; r <= numE; r++) {
-			count[breed[r]]++;
 
-			KVPair[] order = new KVPair[numB];
-			for (int b = 0; b < numB; b++) {
-				order[b] = new KVPair(tlPos[r][b], b);
-			}
-			Arrays.sort(order, Collections.reverseOrder());
 
-			int bSet = 0;
-			for (int i = 0; i < numB && 1 <= order[i].k; i++) {
-				bSet |= (1 << order[i].v);
-				if (i >= numR - 1) {
-					states.put(new State(bSet, count), r);
+		boolean[] visited = new boolean[numB];
+		for (int nIt = 0; nIt < numB; nIt++) {
+			int lmI = numE + 1;
+			int lmB = -1;
+			for (int cB = 0; cB < numB; cB++) {
+				if (!visited[cB] && trPos[0][cB] < lmI) {
+					lmI = trPos[0][cB];
+					lmB = cB;
 				}
+			}
+			if (lmB == -1) {
+				break;
+			}
+			visited[lmB] = true;
+			int[] currState = toStateArray(visited, count);
+			if (!states.containsKey(currState)) {
+				states.put(currState, 0);
 			}
 		}
 
+		long t1 = System.currentTimeMillis();
+
 		int ans = 0;
-		count = new int[numB + 1];
-		for (int l = 1; l <= numE; l++) {
-			count[breed[l]]++;
+		for (int cI = 1; cI <= numE; cI++) {
+			count[breed[cI]]++;
 
-			KVPair[] order = new KVPair[numB];
-			for (int b = 0; b < numB; b++) {
-				order[b] = new KVPair(trPos[l][b], b);
-			}
-			Arrays.sort(order);
+			visited = new boolean[numB];
+			int numV = 0;
 
-			int bSet = 0;
-			for (int i = 0; i < numB && order[i].k <= numE; i++) {
-				bSet |= (1 << order[i].v);
-				if (i >= numR - 1) {
-					Integer r = states.get(new State(bSet, count));
-					if (r != null) {
-						int length = xVal[r] - xVal[l + 1];
+			for (int nIt = 0; nIt < numB; nIt++) {
+				int rmI = 0;
+				int rmB = -1;
+				for (int cB = 0; cB < numB; cB++) {
+					if (!visited[cB] && tlPos[cI][cB] > rmI) {
+						rmI = tlPos[cI][cB];
+						rmB = cB;
+					}
+				}
+				if (rmB == -1) {
+					break;
+				}
+				visited[rmB] = true;
+				numV++;
+				if (numV >= numR) {
+					Integer lI = states.get(toStateArray(visited, count));
+					if (lI != null) {
+						int length = xVal[cI] - xVal[lI + 1];
 						if (ans < length) {
 							ans = length;
 						}
 					}
 				}
 			}
+
+			visited = new boolean[numB];
+			for (int nIt = 0; nIt < numB; nIt++) {
+				int lmI = numE + 1;
+				int lmB = -1;
+				for (int cB = 0; cB < numB; cB++) {
+					if (!visited[cB] && trPos[cI][cB] < lmI) {
+						lmI = trPos[cI][cB];
+						lmB = cB;
+					}
+				}
+				if (lmB == -1) {
+					break;
+				}
+				visited[lmB] = true;
+
+				int[] currState = toStateArray(visited, count);
+				if (!states.containsKey(currState)) {
+					states.put(currState, cI);
+				}
+			}
 		}
-		if(ans == 0){
+		System.out.println(System.currentTimeMillis() - t1);
+
+		if (ans == 0) {
 			printer.println(-1);
-		}
-		else{
+		} else {
 			printer.println(ans);
 		}
 		printer.close();
 	}
+	
 
-	// represents a prefix
-	// dependent on set being determined
-	// if two states are equal, then there is a valid photo
-	class State implements Comparable<State> {
-		int bSet;
+	int[] toStateArray(boolean[] used, int[] count) {
 		int[] values = new int[numB];
-
-		State(int bSet, int[] count) {
-			this.bSet = bSet;
-			int reference = -1;
-			for (int i = 0; i < numB; i++) {
-				if ((bSet & (1 << i)) == 0) {
-					values[i] = count[i];
-				} else {
-					if (reference == -1) {
-						reference = count[i];
-					}
-					values[i] = count[i] - reference;
+		int reference = -1;
+		for (int i = 0; i < numB; i++) {
+			if (!used[i]) {
+				values[i] = -count[i] - numE - 1;
+			} else {
+				if (reference == -1) {
+					reference = count[i];
 				}
+				values[i] = count[i] - reference;
 			}
 		}
+		// System.out.println(Arrays.toString(values));
+		return values;
+	}
 
-		public int compareTo(State o) {
-			if (bSet < o.bSet) {
-				return -1;
-			}
-			if (bSet > o.bSet) {
-				return 1;
-			}
+	Comparator<int[]> sortFunc = new Comparator<int[]>() {
+		public int compare(int[] s1, int[] s2) {
 			for (int i = 0; i < numB; i++) {
-				if (values[i] < o.values[i]) {
+				if (s1[i] < s2[i]) {
 					return -1;
 				}
-				if (values[i] > o.values[i]) {
+				if (s1[i] > s2[i]) {
 					return 1;
 				}
 			}
 			return 0;
 		}
-	}
+	};
 
 	class KVPair implements Comparable<KVPair> {
 		int k;
