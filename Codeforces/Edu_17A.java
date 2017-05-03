@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-public class EDU_17A {
+public class Edu_17A {
 
 	public static void main(String[] args) throws IOException {
-		new EDU_17A().execute();
+		new Edu_17A().execute();
 	}
 
 	ArrayList<Long> primes = new ArrayList<Long>();
