@@ -4,10 +4,10 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class EDU_17B {
+public class Edu_17B {
 
 	public static void main(String[] args) throws IOException {
-		new EDU_17B().execute();
+		new Edu_17B().execute();
 	}
 
 	void execute() throws IOException {
