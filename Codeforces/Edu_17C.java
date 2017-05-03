@@ -6,10 +6,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
-public class EDU_17C {
+public class Edu_17C{
 
 	public static void main(String[] args) throws IOException {
-		new EDU_17C().execute();
+		new Edu_17C().execute();
 	}
 
 	char[] master;
