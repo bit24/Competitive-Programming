@@ -14,51 +14,62 @@ public class Div2_421C {
 		long l = Long.parseLong(inputData.nextToken());
 		long r = Long.parseLong(inputData.nextToken());
 
+		if (r - l + 1 >= 2 * (a + b)) {
+			if (a <= b) {
+				System.out.println(a + 1);
+			} else {
+				System.out.println(2 * a - b);
+			}
+			return;
+		}
+
 		StringBuilder cString = new StringBuilder();
 		for (int i = 0; i < a; i++) {
 			cString.append((char) ('a' + i));
 		}
-		char last = cString.charAt(cString.length() - 1);
-		for (int i = 0; i < b; i++) {
-			cString.append(last);
-		}
+
+		l--;
+		r--;
+
 		TreeSet<Integer> used = new TreeSet<Integer>();
-		for (char c : cString.substring(cString.length() - a, cString.length()).toCharArray()) {
-			used.add(c - 'a');
-		}
 
-		int nxt = 0;
-		for (int i = 0; i < a; i++) {
-			while (used.contains(nxt)) {
-				nxt++;
+		
+		int ans = 26;
+		for (int first = 0; first < 26; first++) {
+			for (int second = a; second < 26; second++) {
+				for (int i = 0; i < b; i++) {
+					cString.append((char)('a' + first));
+				}
+				used.clear();
+				for (char c : cString.substring(cString.length() - a, cString.length()).toCharArray()) {
+					used.add(c - 'a');
+				}
+				int nxt = 0;
+				for (int i = 0; i < a; i++) {
+					while (used.contains(nxt)) {
+						nxt++;
+					}
+					cString.append((char) ('a' + nxt));
+					nxt++;
+				}
+				for (int i = 0; i < b; i++) {
+					cString.append((char)('a' + second));
+				}
+
+				int len = cString.length();
+
+				used.clear();
+				for (int i = (int) (l % len); i != (r + 1) % len; i = (i + 1) % len) {
+					used.add(cString.charAt(i) - 'a');
+				}
+				if(used.size() < ans){
+					ans = used.size();
+				}
+				cString.delete(a, cString.length());
 			}
-			cString.append((char) ('a' + nxt));
-			nxt++;
 		}
 
-		last = cString.charAt(cString.length() - 1);
-		for (int i = 0; i < b; i++) {
-			cString.append(last);
-		}
-
-		int len = cString.length();
-
-		used.clear();
-		if (r - l + 1 >= len) {
-			for (char c : cString.toString().toCharArray()) {
-				used.add(c - 'a');
-			}
-		} else {
-			String pString = " " + cString.toString();
-
-			int start = (int) ((l % len) == 0 ? len : (l % len));
-			int end = (int) ((r + 1) % len == 0 ? len : (r + 1) % len);
-
-			for (int i = start; i != end; i = (int) ((i + 1) % len == 0 ? len : (i + 1) % len)) {
-				used.add(pString.charAt(i) - 'a');
-			}
-		}
-		System.out.println(used.size());
+		System.out.println(ans);
 	}
 
 }
