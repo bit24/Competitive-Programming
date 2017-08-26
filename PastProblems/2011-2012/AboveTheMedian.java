@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-public class AboveTheMedianSolver {
+public class AboveTheMedian {
 
 	public static void main(String[] args) throws IOException {
-		new AboveTheMedianSolver().execute();
+		new AboveTheMedian().execute();
 	}
 
 	int numE;
