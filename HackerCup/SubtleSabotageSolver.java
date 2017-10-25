@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-public class SubtleSabatogeSolver {
+public class SubtleSabotageSolver {
 
 	public static void main(String[] args) throws IOException {
 
