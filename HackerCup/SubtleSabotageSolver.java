@@ -10,8 +10,8 @@ public class SubtleSabotageSolver {
 
 	public static void main(String[] args) throws IOException {
 
-		BufferedReader reader = new BufferedReader(new FileReader("subtle_sabatoge.in"));
-		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("subtle_sabatoge.out")));
+		BufferedReader reader = new BufferedReader(new FileReader("subtle_sabotage.in"));
+		PrintWriter printer = new PrintWriter(new BufferedWriter(new FileWriter("subtle_sabotage.out")));
 
 		int numT = Integer.parseInt(reader.readLine());
 		for (int i = 1; i <= numT; i++) {
