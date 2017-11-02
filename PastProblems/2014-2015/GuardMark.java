@@ -33,7 +33,7 @@ public class GuardMark {
 			weight[i] = Long.parseLong(inputData.nextToken());
 			strength[i] = Long.parseLong(inputData.nextToken());
 		}
-      	reader.close();
+      		reader.close();
 
 		long[] dp = new long[1 << numElements];
 		Arrays.fill(dp, -1);
@@ -76,5 +76,4 @@ public class GuardMark {
 		}
 		printer.close();
 	}
-
 }
