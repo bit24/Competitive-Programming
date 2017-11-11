@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class LightsOutSolver {
+public class LightsOut {
 
 	public static void main(String[] args) throws IOException {
-		new LightsOutSolver().execute();
+		new LightsOut().execute();
 	}
 
 	int numP;
