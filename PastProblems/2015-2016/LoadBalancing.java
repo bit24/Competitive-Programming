@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
-public class LoadBalancingSolver {
+public class LoadBalancing {
 
 	public static void main(String[] args) throws IOException {
-		new LoadBalancingSolver().execute();
+		new LoadBalancing().execute();
 	}
 
 	int numP;
@@ -167,5 +167,4 @@ public class LoadBalancingSolver {
 			return Integer.compare(y, o.y);
 		}
 	}
-
 }
