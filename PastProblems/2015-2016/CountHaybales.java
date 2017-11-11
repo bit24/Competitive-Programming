@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-public class CountHaybalesSolver {
+public class CountHaybales {
 
 	public static void main(String[] args) throws IOException {
-		new CountHaybalesSolver().execute();
+		new CountHaybales().execute();
 	}
 
 	void execute() throws IOException {
