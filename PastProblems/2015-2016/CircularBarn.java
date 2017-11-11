@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-public class CircularBarnSolver {
+public class CircularBarn {
 
 	public static void main(String[] args) throws IOException {
-		new CircularBarnSolver().execute();
+		new CircularBarn().execute();
 	}
 
 	int numE;
@@ -160,5 +160,4 @@ public class CircularBarnSolver {
 			this.yIntercept = yIntercept;
 		}
 	}
-
 }
