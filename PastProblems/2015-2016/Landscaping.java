@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class LandscapingSolver {
+public class Landscaping {
 
 	public static void main(String[] args) throws IOException {
-		new LandscapingSolver().execute();
+		new Landscaping().execute();
 	}
 
 	int[] type;
