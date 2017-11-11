@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.TreeSet;
 
-public class HighCardLowCardSolver {
+public class HighCardLowCard {
 
 	public static void main(String[] args) throws IOException {
-		new HighCardLowCardSolver().execute();
+		new HighCardLowCard().execute();
 	}
 
 	int numCards;
