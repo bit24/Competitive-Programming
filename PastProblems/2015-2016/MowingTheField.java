@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-public class MowingTheFieldSolver {
+public class MowingTheField {
 
 	public static void main(String[] args) throws IOException {
-		new MowingTheFieldSolver().execute();
+		new MowingTheField().execute();
 	}
 
 	int tGap;
