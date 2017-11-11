@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class MaxFlowSolver {
+public class MaxFlow {
 
 	public static void main(String[] args) throws IOException {
-		new MaxFlowSolver().execute();
+		new MaxFlow().execute();
 	}
 
 	void execute() throws IOException {
