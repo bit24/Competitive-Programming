@@ -5,10 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class NumbersSolver {
+public class Numbers {
 
 	public static void main(String[] args) throws IOException {
-		new NumbersSolver().execute();
+		new Numbers().execute();
 	}
 
 	void execute() throws IOException {
@@ -63,5 +63,4 @@ public class NumbersSolver {
 		printer.println(max);
 		printer.close();
 	}
-
 }
