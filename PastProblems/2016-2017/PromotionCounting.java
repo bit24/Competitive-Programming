@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 
-public class PromotionCountingSolver {
+public class PromotionCounting {
 
 	public static void main(String[] args) throws IOException {
-		new PromotionCountingSolver().execute();
+		new PromotionCounting().execute();
 	}
 
 	int root = 1;
