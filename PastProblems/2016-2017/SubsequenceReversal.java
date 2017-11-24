@@ -5,10 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class SubsequenceReversalSolver {
+public class SubsequenceReversal {
 
 	public static void main(String[] args) throws IOException {
-		new SubsequenceReversalSolver().execute();
+		new SubsequenceReversal().execute();
 	}
 
 	void execute() throws IOException {
