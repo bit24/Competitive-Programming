@@ -5,10 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class MinCrossSolver {
+public class WhyDidTheCowCrossTheRoad {
 
 	public static void main(String[] args) throws IOException {
-		new MinCrossSolver().execute();
+		new WhyDidTheCowCrossTheRoad().execute();
 	}
 
 	int numE;
