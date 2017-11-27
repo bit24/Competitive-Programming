@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class TeamBuildingSolver {
+public class TeamBuilding {
 
 	public static void main(String[] args) throws IOException {
-		new TeamBuildingSolver().execute();
+		new TeamBuilding().execute();
 	}
 
 	final long MOD = 1_000_000_009;
