@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class LotsOfTrianglesSolver {
+public class LotsOfTriangles {
 
 	public static void main(String[] args) throws IOException {
-		new LotsOfTrianglesSolver().execute();
+		new LotsOfTriangles().execute();
 	}
 
 	int numP;
