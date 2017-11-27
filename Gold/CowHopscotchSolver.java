@@ -64,6 +64,7 @@ public class CowHopscotchSolver {
 
 			for (int j = 2; j <= numC; j++) {
 				totalSum[j] = (totalSum[j] + count[i - 1][j]) % MOD;
+				
 				BITs[types[i - 1][j]].update(j, count[i - 1][j]);
 
 				rSum = (rSum + totalSum[j - 1]) % MOD;
