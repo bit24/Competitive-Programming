@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
@@ -176,15 +175,12 @@ public class OneWayStreets {
 
 	ArrayDeque<Edge> stack = new ArrayDeque<Edge>();
 
-	ArrayList<ArrayList<Integer>> TECCS;
-
 	int[] id;
 
 	void findTECCs() {
 		low = new int[nV];
 		disc = new int[nV];
 		parent = new int[nV];
-		TECCS = new ArrayList<ArrayList<Integer>>();
 		id = new int[nV];
 
 		// mark "not visited"
@@ -194,27 +190,11 @@ public class OneWayStreets {
 
 		// if stack isn't empty (whole thing is 2-edge connected)
 		if (!stack.isEmpty()) {
-			ArrayList<Integer> cTECC = new ArrayList<Integer>();
-			TECCS.add(cTECC);
 			int cID = stack.peek().v1;
 			while (!stack.isEmpty()) {
 				Edge e = stack.pop();
-				cTECC.add(e.v1);
-				cTECC.add(e.v2);
 				id[e.v1] = cID;
 				id[e.v2] = cID;
-			}
-		}
-
-		for (int i = 0; i < TECCS.size(); i++) {
-			ArrayList<Integer> cTECC = TECCS.get(i);
-			Collections.sort(cTECC);
-			ArrayList<Integer> pTECC = new ArrayList<Integer>();
-			pTECC.add(cTECC.get(0));
-			for (int j : cTECC) {
-				if (pTECC.get(pTECC.size() - 1) != j) {
-					pTECC.add(j);
-				}
 			}
 		}
 	}
@@ -238,21 +218,15 @@ public class OneWayStreets {
 					low[cV] = low[aV];
 				}
 
-				// check if there edge from aV to cV is a bridge
+				// check if the edge from aV to cV is a bridge
 				if (low[aV] > disc[cV]) {
-					ArrayList<Integer> cTECC = new ArrayList<Integer>();
-					TECCS.add(cTECC);
-
 					int cID = aV;
 					while (!stack.peek().equals(cEdge)) {
 						Edge e = stack.pop();
-						cTECC.add(e.v1);
-						cTECC.add(e.v2);
 						id[e.v1] = cID;
 						id[e.v2] = cID;
 					}
 					stack.pop();
-					cTECC.add(aV);
 					id[aV] = cID;
 				}
 			} else if (aV == parent[cV]) {
