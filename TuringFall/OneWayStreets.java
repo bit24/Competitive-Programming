@@ -222,15 +222,12 @@ public class OneWayStreets {
 	void dfs(int cV) {
 		disc[cV] = low[cV] = cCnt++;
 
-		int nChldn = 0;
-
 		int nCPar = 0;
 		for (int aV : aList[cV]) {
 
 			// aV not visited (child)
 			if (disc[aV] == -1) {
 				parent[aV] = cV;
-				nChldn++;
 
 				Edge cEdge = new Edge(cV, aV);
 				stack.push(cEdge);
@@ -242,7 +239,7 @@ public class OneWayStreets {
 				}
 
 				// check if there edge from aV to cV is a bridge
-				if (disc[cV] != 0 ? (low[aV] > disc[cV]) : (nChldn > 1)) {
+				if (low[aV] > disc[cV]) {
 					ArrayList<Integer> cTECC = new ArrayList<Integer>();
 					TECCS.add(cTECC);
 
