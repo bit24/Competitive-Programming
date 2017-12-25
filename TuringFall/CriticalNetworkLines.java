@@ -26,7 +26,7 @@ public class CriticalNetworkLines {
 	int[] low;
 	int cCnt = 0;
 
-	ArrayDeque<Edge> stack = new ArrayDeque<Edge>();
+	ArrayDeque<Integer> stack = new ArrayDeque<Integer>();
 
 	int[] id;
 
@@ -79,20 +79,18 @@ public class CriticalNetworkLines {
 		low = new int[nV];
 		disc = new int[nV];
 		id = new int[nV];
-		
+
 		// mark "not visited"
 		Arrays.fill(disc, -1);
-		
+
 		dfs(root, -1);
-		
+
 		// if stack isn't empty (whole thing is biconnected)
 		if (!stack.isEmpty()) {
-			int cId1 = stack.getFirst().v1;
+			int cId1 = stack.peek();
 			id[cId1] = cId1;
 			while (!stack.isEmpty()) {
-				Edge e = stack.pop();
-				id[e.v1] = cId1;
-				id[e.v2] = cId1;
+				id[stack.pop()] = cId1;
 			}
 		}
 
@@ -156,59 +154,34 @@ public class CriticalNetworkLines {
 	void dfs(int cV, int pV) {
 		disc[cV] = low[cV] = cCnt++;
 
+		stack.push(cV);
+
+		int nCPar = 0;
+
 		for (int aV : aList[cV]) {
-			if (aV == pV) {
-				continue;
-			}
-
-			// aV not visited (child)
 			if (disc[aV] == -1) {
-
-				Edge cEdge = new Edge(cV, aV);
-				stack.push(cEdge);
-
 				dfs(aV, cV);
-				// update low values
+
 				if (low[aV] < low[cV]) {
 					low[cV] = low[aV];
 				}
 
-				// check if the edge from aV to cV is a bridge
-				if (low[aV] > disc[cV]) {
-					int cId = aV;
-					id[aV] = cId;
-
-					while (!stack.peek().equals(cEdge)) {
-						Edge e = stack.pop();
-						id[e.v1] = cId;
-						id[e.v2] = cId;
+				if (low[aV] == disc[aV]) {
+					int cID1 = stack.peek();
+					while (stack.peek() != cV) {
+						id[stack.pop()] = cID1;
 					}
-					stack.pop();
 				}
 			}
-			// back edge
-			else if (disc[aV] < disc[cV]) {
-				stack.push(new Edge(cV, aV));
-				if (low[cV] > disc[aV]) {
-					low[cV] = disc[aV];
-				}
+			else if (aV == pV) {
+				nCPar++;
+			} else if (disc[aV] < low[cV]) {
+				low[cV] = disc[aV];
 			}
 		}
-	}
 
-	class Edge {
-		int v1;
-		int v2;
-
-		Edge(int v1, int v2) {
-			this.v1 = v1;
-			this.v2 = v2;
-		}
-
-		public boolean equals(Object obj) {
-			Edge other = (Edge) (obj);
-			return other.v1 == v1 && other.v2 == v2;
+		if (nCPar > 1 && disc[pV] < low[cV]) {
+			low[cV] = disc[pV];
 		}
 	}
-
 }
