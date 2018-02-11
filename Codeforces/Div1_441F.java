@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class Div1_411F {
+public class Div1_441F {
 
 	public static void main(String[] args) throws IOException {
-		new Div1_411F().execute();
+		new Div1_441F().execute();
 	}
 
 	int[] par;
