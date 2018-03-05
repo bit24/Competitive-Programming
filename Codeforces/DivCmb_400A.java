@@ -6,10 +6,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-public class Div2_400A {
+public class DivCmb_400A {
 
 	public static void main(String[] args) throws IOException {
-		new Div2_400A().execute();
+		new DivCmb_400A().execute();
 	}
 
 	void execute() throws IOException {
