@@ -5,10 +5,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-public class Div2_400B {
+public class DivCmb_400B {
 
 	public static void main(String[] args) throws IOException {
-		new Div2_400B().execute();
+		new DivCmb_400B().execute();
 	}
 
 	int[] primes = new int[9592];
