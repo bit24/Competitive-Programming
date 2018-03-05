@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-public class Div2_400C {
+public class DivCmb_400C {
 
 	public static void main(String[] args) throws IOException {
-		new Div2_400C().execute();
+		new DivCmb_400C().execute();
 	}
 
 	int numE;
