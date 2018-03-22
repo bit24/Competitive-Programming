@@ -1,5 +1,5 @@
 
-class MinYQuery {
+class ConvexHullTrick {
 
 	Line[] hull;
 	int hSize;
