@@ -1,50 +1,29 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.ArrayDeque;
-import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 class Hierholzer {
 
-	static int numE;
+	static int nE;
 
-	static int numV = 500;
+	static int nV;
 
-	static ArrayList<ArrayList<Integer>> aList = new ArrayList<ArrayList<Integer>>();
-	static ArrayList<ArrayDeque<Integer>> mList = new ArrayList<ArrayDeque<Integer>>();
+	static ArrayList<Integer>[] aList;
+	static MultiSet<Integer>[] mList;
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-		for (int i = 0; i < numV; i++) {
-			aList.add(new ArrayList<Integer>());
-		}
-		numE = Integer.parseInt(reader.readLine());
-		for (int i = 0; i < numE; i++) {
-			StringTokenizer inputData = new StringTokenizer(reader.readLine());
-			int startVertex = Integer.parseInt(inputData.nextToken()) - 1;
-			int endVertex = Integer.parseInt(inputData.nextToken()) - 1;
-
-			aList.get(startVertex).add(endVertex);
-			aList.get(endVertex).add(startVertex);
-		}
-		reader.close();
-		for (ArrayList<Integer> neighbors : aList) {
-			Collections.sort(neighbors);
-		}
-
-		for (ArrayList<Integer> cList : aList) {
-			mList.add(new ArrayDeque<Integer>(cList));
-		}
-
+	void fTour() {
 		int sV = 0;
-		for (int cV = 0; cV < numV; cV++) {
-			if (mList.get(cV).size() % 2 != 0) {
+		for (int cV = 0; cV < nV; cV++) {
+			if (aList[cV].size() % 2 != 0) {
 				sV = cV;
 				break;
 			}
+		}
+
+		mList = new MultiSet[nV];
+		for (int i = 0; i < nV; i++) {
+			mList[i] = new MultiSet<>(aList[i]);
 		}
 
 		ArrayDeque<Integer> stack = new ArrayDeque<Integer>();
@@ -54,20 +33,135 @@ class Hierholzer {
 
 		while (!stack.isEmpty()) {
 			int cV = stack.pop();
-			if (mList.get(cV).isEmpty()) {
+			if (mList[cV].isEmpty()) {
 				path.add(cV);
 			} else {
 				stack.push(cV);
 
-				int neighbor = mList.get(cV).removeFirst();
-				mList.get(neighbor).remove(new Integer(cV));
+				int aV = mList[cV].remove();
+				mList[aV].remove(cV);
 
-				stack.push(neighbor);
+				stack.push(aV);
+			}
+		}
+	}
+
+	class MultiSet<T> {
+		TreeMap<T, Integer> internal;
+
+		void add(T addend) {
+			Integer cnt = internal.get(addend);
+			internal.put(addend, cnt == null ? 1 : cnt + 1);
+		}
+
+		boolean isEmpty() {
+			return internal.isEmpty();
+		}
+
+		void remove(T subtrahend) {
+			Integer cnt = internal.get(subtrahend);
+			if (cnt != null) {
+				if (cnt == 1) {
+					internal.remove(subtrahend);
+				} else {
+					internal.put(subtrahend, cnt - 1);
+				}
+			}
+		}
+		
+		T remove() {
+			T fKey = internal.firstKey();
+			remove(fKey);
+			return fKey;
+		}
+
+		MultiSet(Collection<T> inp) {
+			for (T cItem : inp) {
+				add(cItem);
+			}
+		}
+	}
+}import java.util.ArrayList;
+import java.util.Collection;
+import java.util.ArrayDeque;
+import java.util.TreeMap;
+
+class Hierholzer {
+
+	static int nE;
+
+	static int nV;
+
+	static ArrayList<Integer>[] aList;
+	static MultiSet<Integer>[] mList;
+
+	void fTour() {
+		int sV = 0;
+		for (int cV = 0; cV < nV; cV++) {
+			if (aList[cV].size() % 2 != 0) {
+				sV = cV;
+				break;
 			}
 		}
 
-		while (!path.isEmpty()) {
-			System.out.println(path.removeLast() + 1);
+		mList = new MultiSet[nV];
+		for (int i = 0; i < nV; i++) {
+			mList[i] = new MultiSet<>(aList[i]);
+		}
+
+		ArrayDeque<Integer> stack = new ArrayDeque<Integer>();
+		ArrayDeque<Integer> path = new ArrayDeque<Integer>();
+
+		stack.push(sV);
+
+		while (!stack.isEmpty()) {
+			int cV = stack.pop();
+			if (mList[cV].isEmpty()) {
+				path.add(cV);
+			} else {
+				stack.push(cV);
+
+				int aV = mList[cV].remove();
+				mList[aV].remove(cV);
+
+				stack.push(aV);
+			}
+		}
+	}
+
+	class MultiSet<T> {
+		TreeMap<T, Integer> internal;
+
+		void add(T addend) {
+			Integer cnt = internal.get(addend);
+			internal.put(addend, cnt == null ? 1 : cnt + 1);
+		}
+
+		boolean isEmpty() {
+			return internal.isEmpty();
+		}
+
+		void remove(T subtrahend) {
+			Integer cnt = internal.get(subtrahend);
+			if (cnt != null) {
+				if (cnt == 1) {
+					internal.remove(subtrahend);
+				} else {
+					internal.put(subtrahend, cnt - 1);
+				}
+			}
+		}
+		
+		T remove() {
+			T fKey = internal.firstKey();
+			remove(fKey);
+			return fKey;
+		}
+
+		MultiSet(Collection<T> inp) {
+			for (T cItem : inp) {
+				add(cItem);
+			}
 		}
 	}
 }
