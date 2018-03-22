@@ -3,48 +3,35 @@ import java.util.LinkedList;
 
 class PRTF {
 
-	private int numVertices;
-	private ArrayList<ArrayList<Integer>> aList;
-	private int[][] residual;
+	static int nV;
+	static ArrayList<Integer>[] aList;
+	static int[][] residual;
 
-	private int[] height;
-	private int[] excess;
+	static int[] height;
+	static int[] excess;
 
-	private int source;
-	private int sink;
-
-	public PRTF(ArrayList<ArrayList<Integer>> inpAList, int[][] capacity, int source, int sink) {
-		numVertices = inpAList.size();
-		boolean[][] isConnected = new boolean[numVertices][numVertices];
-		for (int i = 0; i < numVertices; i++) {
-			for (int j : inpAList.get(i)) {
-				isConnected[i][j] = true;
-				isConnected[j][i] = true;
+	static int source;
+	static int sink;
+	
+	static void cleanAList() {
+		boolean[][] connect = new boolean[nV][nV];
+		for (int i = 0; i < nV; i++) {
+			for (int j : aList[i]) {
+				connect[i][j] = connect[j][i] = true;
 			}
 		}
 
-		aList = new ArrayList<ArrayList<Integer>>();
-		for (int i = 0; i < numVertices; i++) {
-			aList.add(new ArrayList<Integer>());
-			for (int j = 0; j < numVertices; j++) {
-				if (isConnected[i][j]) {
-					aList.get(i).add(j);
+		for (int i = 0; i < nV; i++) {
+			aList[i].clear();
+			for (int j = 0; j < nV; j++) {
+				if (connect[i][j]) {
+					aList[i].add(j);
 				}
 			}
 		}
-
-		residual = new int[numVertices][numVertices];
-		for (int i = 0; i < numVertices; i++) {
-			for (int j = 0; j < numVertices; j++) {
-				residual[i][j] = capacity[i][j];
-			}
-		}
-
-		this.source = source;
-		this.sink = sink;
 	}
 
-	private void push(int v1, int v2) {
+	static void push(int v1, int v2) {
 		int deltaFlow = Math.min(excess[v1], residual[v1][v2]);
 		if (deltaFlow <= 0) {
 			return;
@@ -55,26 +42,26 @@ class PRTF {
 		residual[v2][v1] += deltaFlow;
 	}
 
-	private void relabel(int vertex) {
+	static void relabel(int cV) {
 		int min = Integer.MAX_VALUE;
-		for (int neighbor : aList.get(vertex)) {
-			if (residual[vertex][neighbor] == 0) {
+		for (int aV : aList[cV]) {
+			if (residual[cV][aV] == 0) {
 				continue;
 			}
-			if (min > height[neighbor]) {
-				min = height[neighbor];
+			if (min > height[aV]) {
+				min = height[aV];
 			}
 		}
-		height[vertex] = min + 1;
+		height[cV] = min + 1;
 	}
 
-	private void discharge(int vertex) {
+	static void discharge(int vertex) {
 		if (excess[vertex] == 0) {
 			return;
 		}
 		while (true) {
 
-			for (int neighbor : aList.get(vertex)) {
+			for (int neighbor : aList[vertex]) {
 
 				if (height[vertex] > height[neighbor]) {
 
@@ -90,34 +77,34 @@ class PRTF {
 		}
 	}
 
-	private void handleSource() {
-		height = new int[numVertices];
-		excess = new int[numVertices];
+	static void handleSource() {
+		height = new int[nV];
+		excess = new int[nV];
 
-		height[source] = numVertices;
+		height[source] = nV;
 
-		for (int adjacentToSource : aList.get(source)) {
-			excess[adjacentToSource] = residual[source][adjacentToSource];
-			excess[source] -= residual[source][adjacentToSource];
-			residual[adjacentToSource][source] = residual[source][adjacentToSource];
-			residual[source][adjacentToSource] = 0;
+		for (int aSource : aList[source]) {
+			excess[aSource] = residual[source][aSource];
+			excess[source] -= residual[source][aSource];
+			residual[aSource][source] = residual[source][aSource];
+			residual[source][aSource] = 0;
 		}
 	}
 
-	public int[][] getResidual() {
-		computeMFResidual();
+	static int[][] getResidual() {
+		computeMFRes();
 		return residual;
 	}
 
-	public int getMaxFlow() {
-		computeMFResidual();
+	static int getMaxFlow() {
+		computeMFRes();
 		return -excess[source];
 	}
 
-	public void computeMFResidual() {
+	static void computeMFRes() {
 		handleSource();
-		LinkedList<Integer> list = new LinkedList<Integer>();
-		for (int i = 0; i < numVertices; i++) {
+		LinkedList<Integer> list = new LinkedList<>();
+		for (int i = 0; i < nV; i++) {
 			if (i == source || i == sink) {
 				continue;
 			}
@@ -128,9 +115,9 @@ class PRTF {
 
 			int toUpdate = -1;
 			for (int vertex : list) {
-				int previousHeight = height[vertex];
+				int pHeight = height[vertex];
 				discharge(vertex);
-				if (height[vertex] > previousHeight) {
+				if (height[vertex] > pHeight) {
 					toUpdate = vertex;
 					break;
 				}
