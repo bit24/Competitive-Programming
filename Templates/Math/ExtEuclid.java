@@ -65,7 +65,7 @@ public class ExtEuclid {
 		return (int) ((num * pRes % mod + mod) % mod);
 	}
 
-	static int inv(int number, int mod) {
+	static long inv(long number, long mod) {
 		long dend = number, dendA = 1;
 
 		long dsor = mod, dsorA = 0;
@@ -82,7 +82,6 @@ public class ExtEuclid {
 			dsorA = rA;
 		}
 		assert (dend == 1);
-		return (int) ((dendA % mod + mod) % mod);
+		return (dendA % mod + mod) % mod;
 	}
-
 }
