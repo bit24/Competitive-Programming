@@ -35,36 +35,6 @@ public class ExtEuclid {
 		// qRes = dendB;
 	}
 
-	// note: only elements coprime to the mod have modular inverses
-	// as such, division is only defined if den and mod are coprime
-	static int div(int num, int den, int mod) {
-		// "a" = den
-		// "b" = mod
-
-		long dend = den;
-		long dendA = 1;
-
-		long dsor = mod;
-		long dsorA = 0;
-
-		while (dsor != 0) {
-			long q = dend / dsor;
-
-			long r = dend % dsor;
-			long rA = dendA - q * dsorA;
-
-			dend = dsor;
-			dendA = dsorA;
-
-			dsor = r;
-			dsorA = rA;
-		}
-		long gcd = dend;
-		assert (gcd == 1);
-		long pRes = dendA;
-		return (int) ((num * pRes % mod + mod) % mod);
-	}
-
 	static long inv(long number, long mod) {
 		long dend = number, dendA = 1;
 
