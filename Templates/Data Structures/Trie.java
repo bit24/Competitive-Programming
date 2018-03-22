@@ -7,8 +7,9 @@ public class Trie {
 	static final int MAXLENGTH = 10;
 
 	static int[][] nxt = new int[ABTSIZE][MAXLENGTH * MAXELEMENTS];
+	static int[] cnt = new int[MAXLENGTH * MAXELEMENTS];
 
-	int nF = 1;
+	static int nF = 1;
 
 	public static void main(String[] args) {
 		for (int[] cArray : nxt) {
@@ -16,23 +17,35 @@ public class Trie {
 		}
 	}
 
-	void add(int[] key) {
+	static void add(int[] key) {
 		int cN = 0;
 		for (int cL : key) {
-			if(nxt[cL][cN] == -1) {
+			if (nxt[cL][cN] == -1) {
 				nxt[cL][cN] = nF++;
 			}
 			cN = nxt[cL][cN];
+			cnt[cN]++;
 		}
 	}
-	
-	boolean contains(int[] key) {
+
+	static void delete(int[] key) {
 		int cN = 0;
 		for (int cL : key) {
-			if(nxt[cL][cN] == -1) {
+			cN = nxt[cL][cN];
+			cnt[cN]--;
+		}
+	}
+
+	static boolean contains(int[] key) {
+		int cN = 0;
+		for (int cL : key) {
+			if (nxt[cL][cN] == -1) {
 				return false;
 			}
 			cN = nxt[cL][cN];
+			if (cnt[cN] == 0) {
+				return false;
+			}
 		}
 		return true;
 	}
