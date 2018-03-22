@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 // runtime of E*max match
-// E^2 worse case
+// E*V worse case
 
 class MaxBipartiteMatch {
 	int[] rMatch;
