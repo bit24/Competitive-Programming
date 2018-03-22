@@ -1,67 +1,39 @@
+import java.util.Arrays;
 
-class Trie {
+public class Trie {
 
-	Node[] root = new Node[26];
+	static final int ABTSIZE = 26;
+	static final int MAXELEMENTS = 100_000;
+	static final int MAXLENGTH = 10;
 
-	public void insert(String element) {
+	static int[][] nxt = new int[ABTSIZE][MAXLENGTH * MAXELEMENTS];
 
-		int[] indices = toKey(element);
+	int nF = 1;
 
-		Node currentNode = root[indices[0]];
-
-		for (int ii = 1; ii < indices.length; ii++) {
-			if (currentNode.child[indices[ii]] == null) {
-				currentNode.child[indices[ii]] = new Node();
-			}
-			currentNode = currentNode.child[indices[ii]];
-			if (ii == indices.length - 1) {
-				currentNode.finishesWord = true;
-			}
+	public static void main(String[] args) {
+		for (int[] cArray : nxt) {
+			Arrays.fill(cArray, -1);
 		}
 	}
 
-	public int[] toKey(String input) {
-		input.toLowerCase();
-		char[] charInput = input.toCharArray();
-		int inputLength = charInput.length;
-
-		int[] key = new int[inputLength];
-
-		for (int i = 0; i < inputLength; i++) {
-			key[i] = charInput[i] - 97;
+	void add(int[] key) {
+		int cN = 0;
+		for (int cL : key) {
+			if(nxt[cL][cN] == -1) {
+				nxt[cL][cN] = nF++;
+			}
+			cN = nxt[cL][cN];
 		}
-		return key;
 	}
-
-	public boolean containsPrefix(String element) {
-		int[] indices = toKey(element);
-		Node currentNode = root[indices[0]];
-
-		for (int ii = 1; ii < indices.length; ii++) {
-			if (currentNode.child[indices[ii]] == null) {
+	
+	boolean contains(int[] key) {
+		int cN = 0;
+		for (int cL : key) {
+			if(nxt[cL][cN] == -1) {
 				return false;
 			}
-			currentNode = currentNode.child[indices[ii]];
+			cN = nxt[cL][cN];
 		}
 		return true;
 	}
-
-	public boolean containsWord(String element) {
-		int[] indices = toKey(element);
-		Node currentNode = root[indices[0]];
-
-		for (int ii = 1; ii < indices.length; ii++) {
-			if (currentNode.child[indices[ii]] == null) {
-				return false;
-			}
-			currentNode = currentNode.child[indices[ii]];
-		}
-		return currentNode.finishesWord;
-	}
-
-	class Node {
-		Node[] child = new Node[26];
-		boolean finishesWord;
-	}
-
 }
