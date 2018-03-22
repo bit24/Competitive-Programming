@@ -7,20 +7,20 @@ import java.util.Collections;
 class BF {
 
 	ArrayList<Edge> edges = new ArrayList<Edge>();
-	int[] distance;
+	int[] dist;
 	int nV;
 
 	public void bellmanFord(int source) {
-		distance = new int[nV];
-		Arrays.fill(distance, Integer.MAX_VALUE / 4);
+		dist = new int[nV];
+		Arrays.fill(dist, Integer.MAX_VALUE / 4);
 
-		distance[source] = 0;
+		dist[source] = 0;
 		Collections.sort(edges);
 
 		for (int i = 0; i < nV - 1; i++) {
 			for (Edge e : edges) {
-				if (distance[e.v1] != Integer.MAX_VALUE / 4) {
-					distance[e.v2] = Math.min(distance[e.v2], distance[e.v1] + e.len);
+				if (dist[e.v1] != Integer.MAX_VALUE / 4) {
+					dist[e.v2] = Math.min(dist[e.v2], dist[e.v1] + e.len);
 				}
 			}
 		}
