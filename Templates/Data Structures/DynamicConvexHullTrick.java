@@ -1,6 +1,6 @@
 import java.util.TreeSet;
 
-public class DynamicConvexHullT {
+public class DynamicConvexHullTrick {
 
 	public static void main(String[] args) {
 		String a = new String();
