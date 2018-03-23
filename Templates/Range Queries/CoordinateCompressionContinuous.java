@@ -3,8 +3,8 @@ import java.util.Collections;
 
 public class CoordinateCompressionContinuous {
 
-	ArrayList<Integer> inpPos = new ArrayList<>();
-	int[] pos;
+	ArrayList<Integer> inpPos = new ArrayList<>(); // 0-indexed
+	int[] pos; // 1-indexed
 
 	void init() {
 		if (inpPos.isEmpty()) {
