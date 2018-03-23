@@ -2,11 +2,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 class CompressedBIT {
+	ArrayList<Integer> inpPos = new ArrayList<>();
 	private long[] BIT;
 	private int[] pos;
 
 	// inpPos may contain duplicates, is zero indexed
-	CompressedBIT(ArrayList<Integer> inpPos) {
+	void init() {
 		if (inpPos.isEmpty()) {
 			BIT = new long[1];
 			pos = new int[1];
@@ -32,9 +33,6 @@ class CompressedBIT {
 	}
 
 	private int[] process(ArrayList<Integer> inp) {
-		if (inp.isEmpty()) {
-			return new int[0];
-		}
 		int size = 1;
 		for (int i = 1; i < inp.size(); i++) {
 			if (!inp.get(i).equals(inp.get(i))) {
