@@ -1,7 +1,7 @@
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class CoordinateCompression {
+public class CoordinateCompressionMap {
 
 	static TreeMap<Integer, Integer> cMap = new TreeMap<>();
 	static TreeMap<Integer, Integer> rMap = new TreeMap<>();
