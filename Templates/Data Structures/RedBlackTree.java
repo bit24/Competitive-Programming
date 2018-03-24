@@ -1,5 +1,45 @@
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.SplittableRandom;
+import java.util.TreeMap;
 
 class RedBlackTree {
+
+	// testing code
+	public static void main(String[] args) throws IOException {
+		SplittableRandom rng = new SplittableRandom();
+		RedBlackTree tree = new RedBlackTree();
+		TreeMap<Integer, Integer> control = new TreeMap<>();
+		ArrayList<Integer> pKeys = new ArrayList<Integer>();
+
+		int nM = 0;
+		for (int i = 0; i < 100_000; i++) {
+			int k = rng.nextInt(Integer.MAX_VALUE);
+			int v = rng.nextInt(Integer.MAX_VALUE);
+			tree.put(k, v);
+			control.put(k, v);
+			pKeys.add(k);
+
+			if (i % 3 == 1) {
+				int rK = pKeys.get(rng.nextInt(pKeys.size()));
+
+				Vertex res = tree.get(rK);
+				if (res == null) {
+					assert (control.get(rK) == null);
+				} else {
+					assert (res.v == control.get(rK));
+					nM++;
+				}
+			}
+
+			if (i % 3 == 2) {
+				int rK = pKeys.get(rng.nextInt(pKeys.size()));
+				tree.remove(rK);
+				control.remove(rK);
+			}
+		}
+		System.out.println(nM);
+	}
 
 	class Vertex {
 		int k;
