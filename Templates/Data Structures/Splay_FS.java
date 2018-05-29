@@ -1,12 +1,22 @@
-public class SplayTreeSimple {
+import java.util.Arrays;
+
+public class Splay_FS {
+
+	Splay_FS() {
+		Arrays.fill(key, -1);
+		for (int[] a : ch) {
+			Arrays.fill(a, -1);
+		}
+		Arrays.fill(par, -1);
+	}
 
 	// virtual nodes
-	int[][] ch;
-	int[] par;
-	int[] key;
-	int nxt;
+	int[] key = new int[1_000_000];
+	int[][] ch = new int[1_000_000][2];
+	int[] par = new int[1_000_000];
+	int nxt = 0;
 
-	int root;
+	int root = -1;
 
 	void ro(int x) {
 		int p = par[x], d = ch[p][0] == x ? 0 : 1, g = par[p];
@@ -16,7 +26,9 @@ public class SplayTreeSimple {
 		if (g != -1) {
 			ch[g][ch[g][0] == p ? 0 : 1] = x;
 		}
-		par[ch[p][d]] = x;
+		if(ch[p][d] != -1) {
+			par[ch[p][d]] = p;
+		}
 		par[x] = g;
 		par[p] = x;
 		upd(p);
@@ -49,6 +61,9 @@ public class SplayTreeSimple {
 	}
 
 	int search(int k) {
+		if (root == -1) {
+			return -1;
+		}
 		int x = root;
 		while (true) {
 			if (k == key[x]) {
@@ -66,8 +81,15 @@ public class SplayTreeSimple {
 	}
 
 	void insert(int k) {
+		if (root == -1) {
+			key[nxt] = k;
+			root = nxt++;
+			return;
+		}
 		int x = search(k);
 		if (x == -1) {
+			key[nxt] = k;
+
 			int d = key[root] < k ? 0 : 1; // reverse of normal because new root creation
 
 			ch[nxt][d] = root;
@@ -75,7 +97,9 @@ public class SplayTreeSimple {
 			ch[root][d ^ 1] = -1;
 
 			par[root] = nxt;
-			par[ch[nxt][d ^ 1]] = nxt;
+			if (ch[nxt][d ^ 1] != -1) {
+				par[ch[nxt][d ^ 1]] = nxt;
+			}
 
 			upd(root);
 			upd(nxt);
@@ -87,22 +111,24 @@ public class SplayTreeSimple {
 	void delete(int k) {
 		int x = search(k);
 		if (x != -1) {
-			assert (x == root);
-			if (ch[x][0] == -1 && ch[x][1] == -1) {
-				root = -1;
-			}
 			if (ch[x][0] == -1) {
 				root = ch[x][1];
-				par[ch[x][1]] = -1;
+				if (ch[x][1] != -1) {
+					par[ch[x][1]] = -1;
+				}
+				return;
 			}
 			x = ch[x][0];
 			while (ch[x][1] != -1) {
 				x = ch[x][1];
 			}
-			ch[par[x]][ch[par[x]][0] == x ? 0 : 1] = ch[x][0];
-			par[ch[x][0]] = par[x];
+			int p = par[x];
+			ch[p][ch[p][0] == x ? 0 : 1] = ch[x][0];
+			if(ch[x][0] != -1) {
+				par[ch[x][0]] = p;
+			}
 
-			upd(par[x]);
+			upd(p);
 
 			ch[x][0] = ch[root][0];
 			ch[x][1] = ch[root][1];
@@ -112,6 +138,7 @@ public class SplayTreeSimple {
 			if (ch[root][1] != -1) {
 				par[ch[root][1]] = x;
 			}
+			par[x] = -1;
 
 			upd(x);
 			root = x;
