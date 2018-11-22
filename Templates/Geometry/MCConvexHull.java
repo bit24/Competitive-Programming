@@ -34,7 +34,7 @@ class MCConvexHull {
 	}
 
 	public static long orient(Point a, Point b, Point c) {
-		return (long) (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+		return (long) (b.x - a.x) * (c.y - a.y) - (long) (b.y - a.y) * (c.x - a.x);
 	}
 
 	class Point implements Comparable<Point> {
