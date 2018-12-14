@@ -1,0 +1,47 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
+public class CowTuning {
+ 
+  public static void main(String[] args) throws IOException{
+  	BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    PrintWriter printer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    int N = Integer.parseInt(reader.readLine());
+    
+    int cnt = 1;
+    int cur = 0;
+    
+    for(int i = 1; i < N-1; i++){
+    	printer.println((cur + 1) + " " + (i + 1));
+    	printer.flush();
+    	String line = reader.readLine();
+      
+      	if(cnt == 0){
+      	 	cnt = 1;
+          	cur = i;
+      	}
+     	else{
+      		if(line.equals("SAME")){
+        		cnt++;
+      		}
+      		else{
+          		cnt--;
+        	}
+        }
+      	
+    }
+    
+    if(cnt == 0){
+     	printer.println(N);
+    }
+    else{
+      	printer.println(cur+1);
+    }
+    printer.close();
+  }
+  
+}
