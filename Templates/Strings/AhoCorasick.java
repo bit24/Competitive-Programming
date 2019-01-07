@@ -25,7 +25,9 @@ public class AhoCorasick {
 	}
 
 	static void addAll(String[] pats) {
-		Arrays.fill(link, -1);
+		for(int[] a : link) {
+			Arrays.fill(a, -1);
+		}
 		Arrays.fill(matI, -1);
 		Arrays.fill(pMat, -1);
 		Arrays.fill(fail, -1);
