@@ -1,6 +1,10 @@
 import java.util.ArrayDeque;
 import java.util.Arrays;
 
+// runtime: O(V^2*E)
+// unit capacities: O(min{V^2/3, E^1/2}*E)
+// bipartite matching: O(E*V^1/2), Hopcroft-Karp
+
 public class Dinics {
 
 	static int nV;
