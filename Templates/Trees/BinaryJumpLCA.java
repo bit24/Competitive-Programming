@@ -2,38 +2,38 @@ import java.util.ArrayList;
 
 class BinaryJumpLCA {
 
-	int numV;
-	ArrayList<ArrayList<Integer>> children;
+	static int nV;
+	static ArrayList<Integer>[] chldn;
 
-	int root;
+	static int root;
 
-	int[][] anc;
-	int[] depth;
+	static int[][] anc;
+	static int[] depth;
 
 	// good for depth of up to 1_048_576 = 2^20
 
-	void preprocess() {
-		anc = new int[numV][21];
+	static void preprocess() {
+		anc = new int[nV][21];
 		anc[root][0] = root;
-		depth = new int[numV];
+		depth = new int[nV];
 		fParent(root);
 
 		for (int k = 1; k <= 20; k++) {
-			for (int i = 0; i < numV; i++) {
+			for (int i = 0; i < nV; i++) {
 				anc[i][k] = anc[anc[i][k - 1]][k - 1];
 			}
 		}
 	}
 
-	void fParent(int cV) {
-		for (int child : children.get(cV)) {
+	static void fParent(int cV) {
+		for (int child : chldn[cV]) {
 			anc[child][0] = cV;
 			depth[child] = depth[cV] + 1;
 			fParent(child);
 		}
 	}
 
-	int findLCA(int a, int b) {
+	static int fLCA(int a, int b) {
 		if (depth[a] > depth[b]) {
 			int temp = b;
 			b = a;
