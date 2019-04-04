@@ -25,4 +25,4 @@ struct SegTr {
         }
         tr[i] = tr[i * 2] + tr[i * 2 + 1];
     }
-}
+};
