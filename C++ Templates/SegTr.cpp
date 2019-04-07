@@ -16,7 +16,7 @@ struct SegTr {
         if (e < l || r < s) {
             return 0;
         }
-        if (l <= s && e <= r) {
+        if (s <= l && r <= e) {
             return tr[i];
         }
         int mid = (l + r) / 2;
