@@ -6,7 +6,7 @@ struct SegTr {
             tr[i] = o[l];
             return;
         }
-        int mid = (l + r) >> 2;
+        int mid = (l + r) / 2;
         b(i * 2, l, mid, o);
         b(i * 2 + 1, mid + 1, r, o);
         tr[i] = tr[i * 2] + tr[i * 2 + 1];
