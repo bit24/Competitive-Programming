@@ -23,7 +23,6 @@ int searchC(int c) {
     while (lo != hi) {
         int mid = (lo + hi) / 2;
         cout << "? " << 1 << " " << c << " " << mid << " " << c << endl;
-        cout.flush();
         int a;
         cin >> a;
         if (a & 1) {
@@ -42,7 +41,6 @@ int searchR(int r) {
     while (lo != hi) {
         int mid = (lo + hi) / 2;
         cout << "? " << r << " " << 1 << " " << r << " " << mid << endl;
-        cout.flush();
         int a;
         cin >> a;
         if (a & 1) {
@@ -92,7 +90,6 @@ int main() {
         int r2 = searchC(c2);
 
         cout << "! " << r1 << " " << c1 << " " << r2 << " " << c2 << " " << endl;
-        cout.flush();
     } else {
         int r1 = fB;
         int r2 = lB + 1;
@@ -100,6 +97,5 @@ int main() {
         int c1 = searchR(r1);
         int c2 = searchR(r2);
         cout << "! " << r1 << " " << c1 << " " << r2 << " " << c2 << " " << endl;
-        cout.flush();
     }
 }
