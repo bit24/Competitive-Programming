@@ -1,11 +1,22 @@
 struct SegTr {
     int tr[4 * MAXN];
+    
+     void b(int i, int l, int r, int o[]) {
+        if (l == r) {
+            tr[i] = o[l];
+            return;
+        }
+        int mid = (l + r) / 2;
+        b(i * 2, l, mid, o);
+        b(i * 2 + 1, mid + 1, r, o);
+        tr[i] = tr[i * 2] + tr[i * 2 + 1];
+    }
 
     int q(int i, int l, int r, int s, int e) {
         if (e < l || r < s) {
             return 0;
         }
-        if (l <= s && e <= r) {
+        if (s <= l && r <= e) {
             return tr[i];
         }
         int mid = (l + r) / 2;
