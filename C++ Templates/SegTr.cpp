@@ -25,7 +25,7 @@ struct SegTr {
 
     void u(int i, int l, int r, int x, int d) {
         if (l == r) {
-            tr[x] += d;
+            tr[i] += d;
             return;
         }
         int mid = (l + r) / 2;
