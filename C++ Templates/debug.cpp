@@ -50,6 +50,6 @@ namespace debug {
     template<class Arg, class... Args>
     void ps(const Arg &first, const Args &... rest) {
         pr(first, " ");
-        ps(rest...); // print w/ spaces
+        ps(rest...);
     }
 }
