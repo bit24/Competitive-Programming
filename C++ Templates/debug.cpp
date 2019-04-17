@@ -45,7 +45,6 @@ namespace debug {
     template<class T1, class T2>
     void pr(const map<T1, T2> &x) { prIn(x); }
 
-
     void ps() { pr("\n"); }
 
     template<class Arg, class... Args>
