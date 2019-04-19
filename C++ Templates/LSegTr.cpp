@@ -4,7 +4,6 @@ struct LSegTr {
     void ps(int i, int l, int r) {
         tr[i] += (r - l + 1) * lz[i];
         if (l != r) {
-            int mid = (l + r) / 2;
             lz[i * 2] += lz[i];
             lz[i * 2 + 1] += lz[i];
         }
