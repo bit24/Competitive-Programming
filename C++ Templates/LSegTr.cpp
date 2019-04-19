@@ -12,10 +12,10 @@ struct LSegTr {
     }
 
     int q(int i, int l, int r, int s, int e) {
-        ps(i, l, r);
         if (e < l || r < s) {
             return 0;
         }
+        ps(i, l, r);
         if (s <= l && r <= e) {
             return tr[i];
         }
