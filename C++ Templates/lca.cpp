@@ -1,4 +1,4 @@
-namespace lca {
+struct LCA {
     const int LOGN = 18;
 
     int anc[MAXN][LOGN];
@@ -25,7 +25,7 @@ namespace lca {
         if (depth[a] > depth[b]) swap(a, b);
 
         b = j(b, depth[b] - depth[a]);
-        
+
         if (a == b) return a;
 
         for (int i = LOGN - 1; i >= 0; i--) {
