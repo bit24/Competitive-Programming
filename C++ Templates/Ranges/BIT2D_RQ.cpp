@@ -1,4 +1,4 @@
-struct BIT2D_RQ { // 2D BIT with 0 indexing, range queries, point updates
+struct BIT2D_RQ { // 2D BIT with 0 indexing; range queries, point updates
 
     static int searchF(vi &a, int x) { // returns first element ge x
         return lower_bound(a.begin(), a.end(), x) - a.begin();
@@ -49,7 +49,7 @@ struct BIT2D_RQ { // 2D BIT with 0 indexing, range queries, point updates
         }
         tr.resize(maxX + 1);
 
-        // coordinate compress on x if necessary
+        // coordinate compress on x if necessary in future
         for (pi cP: pts) {
             int i = cP.f;
             while (i < tr.size()) {
