@@ -1,7 +1,7 @@
 struct BIT {
     int tr[MAXN];
 
-    int u(int i, int d) {
+    void u(int i, int d) {
         while (i < MAXN) {
             tr[i] += d;
             i += (i & - i);
