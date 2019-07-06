@@ -42,7 +42,7 @@ struct BIT2D_RUpd { // 2D BIT with 0 indexing; range updates, points queries
 
     vector<node> tr;
 
-    void init(vector<pi> &pts) { // passed in future queries
+    void init(vector<pi> &pts) { // pass in future queries
         int maxX = 0;
         for (pi cP: pts) {
             maxX = max(maxX, cP.f);
