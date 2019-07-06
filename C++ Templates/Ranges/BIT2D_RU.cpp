@@ -1,4 +1,11 @@
 struct BIT2D_RUpd { // 2D BIT with 0 indexing; range updates, points queries
+    static int searchF(vi &a, int x) { // returns first element ge x
+        return lower_bound(a.begin(), a.end(), x) - a.begin();
+    }
+
+    static int searchL(vi &a, int x) { // returns last element le x
+        return upper_bound(a.begin(), a.end(), x) - a.begin() - 1;
+    }
 
     struct node {
         vi yCoor;
