@@ -89,7 +89,7 @@ struct PLSegTr {
         return q(trees[t], 1, MAXN, s, e);
     }
 
-    void bTree(vi&a){
+    void bTree(vi& a){
         trees.pb(b(a, 1, MAXN));
     }
 };
