@@ -23,7 +23,7 @@ struct LSegTr {
     }
 
     void u(int i, int l, int r, int s, int e, int d) {
-        ps(i, l, r);
+        ps(i, l, r); // pushed early to use in recalculation of parent
         if (e < l || r < s) {
             return;
         }
