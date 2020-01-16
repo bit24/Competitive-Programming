@@ -47,11 +47,11 @@ class SCCs {
 			ArrayList<Integer> cSCC = new ArrayList<Integer>();
 			SCCs.add(cSCC);
 			while (stack.peek() != cV) {
+				disc[stack.peek()] = Integer.MAX_VALUE; // so that cross edges will not interfere
 				cSCC.add(stack.pop());
 			}
+			disc[stack.peek()] = Integer.MAX_VALUE;
 			cSCC.add(stack.pop());
 		}
-
-		disc[cV] = Integer.MAX_VALUE; // so that cross edges will not interfere
 	}
 }
