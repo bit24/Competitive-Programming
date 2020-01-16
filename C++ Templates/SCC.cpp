@@ -1,4 +1,4 @@
-namespace SCC {
+namespace SCC { // verified: Theme Park Planning
     const int MAXN = 2e5 + 100;
     const int INF = 1e9;
 
