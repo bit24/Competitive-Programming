@@ -1,7 +1,7 @@
 struct LSegTr {
     int tr[4 * MAXN], lz[4 * MAXN];
 
-    void ps(int i, int l, int r) {
+    void push(int i, int l, int r) {
         tr[i] += (r - l + 1) * lz[i];
         if (l != r) {
             lz[i * 2] += lz[i];
@@ -14,7 +14,7 @@ struct LSegTr {
         if (e < l || r < s) {
             return 0;
         }
-        ps(i, l, r);
+        push(i, l, r);
         if (s <= l && r <= e) {
             return tr[i];
         }
@@ -23,13 +23,13 @@ struct LSegTr {
     }
 
     void u(int i, int l, int r, int s, int e, int d) {
-        ps(i, l, r); // pushed early to use in recalculation of parent
+        push(i, l, r); // pushed early to use in recalculation of parent
         if (e < l || r < s) {
             return;
         }
         if (s <= l && r <= e) {
             lz[i] += d;
-            ps(i, l, r);
+            push(i, l, r);
             return;
         }
         int mid = (l + r) / 2;
