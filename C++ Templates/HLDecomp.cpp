@@ -24,6 +24,7 @@ struct HLDecomp {
                 cCnt += aCnt;
             }
         }
+        return cCnt;
     }
 
     void init() {
