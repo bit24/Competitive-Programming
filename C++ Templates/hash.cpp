@@ -10,6 +10,7 @@ namespace Hash {
         }
     }
 
+    // assume string is 1-indexed
     void cPreH(string &str, ll preH[]) {
         preH[0] = 0;
         for (int i = 1; i < str.length(); i++) {
