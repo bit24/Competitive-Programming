@@ -97,14 +97,14 @@ namespace treap {
         return merge(a.f, b.s);
     }
 
-    pt findKth(pt x, int k) { // 0-indexed
+    pt findKth(pt x, int k) { // 1-indexed
         if (!x) return x;
         int lSz = sz(x->c[0]);
-        if (lSz == k) return x;
-        if (lSz < k) {
-            return findKth(x->c[1], k - lSz - 1);
-        } else {
+        if (lSz == k - 1) return x;
+        if (lSz >= k) {
             return findKth(x->c[0], k);
+        } else {
+            return findKth(x->c[1], k - lSz - 1);
         }
     }
 
